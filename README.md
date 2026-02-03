@@ -111,23 +111,6 @@ Language detection and multilingual management are the responsibility of the sit
 > ⚠️ Conflicts only occur if multiple language versions of a post share the same post ID.  
 > To prevent overwriting audio, generate a **unique TTS identifier per language**.
 
-### Implementation Note
-
-When generating TTS, pass your **unique identifier** instead of `$post_id` in the `class-ats-moknah-client.php` file at `line 262`:
-
-```php
-$unique_id = $post_id . '-' . $lang; // recommended unique TTS ID
-self::generateTTS($unique_id);
-```
-
-The same identifier will then be received in the callback as ```articleId```:
-
-```php
-$data['articleId']
-```
-
-This ensures that the generated audio is correctly mapped to the respective language version of the post.
-
 ---
 ## Frequently Asked Questions
 

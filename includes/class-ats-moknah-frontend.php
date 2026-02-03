@@ -70,7 +70,6 @@ class Frontend {
         } catch (\Exception $e) {
             $skippedSelectors = ['highlighter-skip'];
         }
-        error_log("Selectors: " . implode(', ', $skippedSelectors));
         $skippedSelectors = json_encode($skippedSelectors);
         $inline_js = "window.MoknahTTS.init({
             srtSrc: {$srt_js},

@@ -8,8 +8,8 @@ class Callback {
             register_rest_route('ats-moknah/v1', '/callback', [
                 'methods' => 'POST',
                 'callback' => [self::class, 'handle'],
-//                'permission_callback' => [self::class, 'validateCallback']
-                'permission_callback' => '__return_true'
+                'permission_callback' => [self::class, 'validateCallback'] // Validate HMAC signature should be used for production
+//                'permission_callback' => '__return_true' // For testing only, disable in production
             ]);
         });
     }
@@ -25,12 +25,14 @@ class Callback {
             return new \WP_Error('unauthorized', 'API key not configured', ['status' => 401]);
         }
 
-        // Validate by checking if the articleId exists and has our processing flag
         $data = $request->get_json_params();
-        $postId = $data['articleId'] ?? null;
+        $postId   = $data['articleId'] ?? null;
+        $audioUrl = $data['response']['audioFile'] ?? null;
+        $srtUrl   = $data['response']['srtFile'] ?? null;
+        $signature = $data['response']['signature'] ?? null;
 
-        if (!$postId) {
-            error_log('[ATS Moknah Callback] Missing articleId in request');
+        if (!$postId || !$audioUrl || !$srtUrl || !$signature) {
+            error_log('[ATS Moknah Callback] Missing required fields');
             return false;
         }
 
@@ -40,21 +42,27 @@ class Callback {
             return false;
         }
 
-        // Additional security: check if TTS was actually requested for this post
         $enabled = get_post_meta($postId, '_ats_moknah_enabled', true);
         if ($enabled !== '1') {
             error_log('[ATS Moknah Callback] TTS not enabled for post: ' . $postId);
             return false;
         }
 
+        $apiKeyHash = hash('sha256', $apiKey, false); // SHA256 hash
+        $payload = $postId . '|' . $audioUrl . '|' . $srtUrl;
+        $expectedSignature = hash_hmac('sha256', $payload, $apiKeyHash);
+        if (!hash_equals($expectedSignature, $signature)) {
+            error_log('[ATS Moknah Callback] Invalid HMAC signature');
+            return new \WP_Error('unauthorized', 'Invalid signature', ['status' => 401]);
+        }
+
         return true;
     }
+
 
     public static function handle($request) {
         try {
             $data = $request->get_json_params();
-
-            error_log('[ATS Moknah Callback] Received callback data: ' . print_r($data, true));
 
             // Validate required fields
             $postId = $data['articleId'] ?? null;
@@ -143,10 +151,6 @@ class Callback {
         update_post_meta($postId, '_ats_moknah_completed_at', current_time('mysql'));
 
         error_log('[ATS Moknah Callback] Successfully processed audio for post ID ' . $postId);
-        wp_send_json_success([
-            'message' => 'Audio generation started successfully. Notifications to post author are disabled.',
-            'status' => 'processing'
-        ]);
         // Send notification to post author
         self::notifyAuthor($post, $audioUrl);
 

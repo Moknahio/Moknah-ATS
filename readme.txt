@@ -183,11 +183,11 @@ Initial release of ATS Moknah - Article to Speech plugin.
 
 = Multilingual Implementation Note =
 
-When generating TTS for multilingual posts, pass your unique identifier instead of `$post_id` in the `class-ats-moknah-client.php` file at line 262:
+ATS Moknah does **not automatically manage multilingual posts**.
+Language detection and multilingual management are the responsibility of the site and its developers.
 
-`$unique_id = $post_id . '-' . $lang; // recommended unique TTS ID`
-
-This ensures that generated audio is correctly mapped to the respective language version of the post.
+> ⚠️ Conflicts only occur if multiple language versions of a post share the same post ID.
+> To prevent overwriting audio, generate a **unique TTS identifier per language**.
 
 = Credits =
 
