@@ -1,0 +1,360 @@
+:root {
+    --mk-mp-d1-progress-percentage: 0%;
+    --mk-mp-d1-volume-percentage: 100%;
+}
+
+:root[data-theme="light"] {
+    --mk-mp-d1-bg-gradient: linear-gradient(135deg, #f0f2f5, #e3e6e9);
+    --mk-mp-d1-player-bg: rgba(255, 255, 255, 0.9);
+    --mk-mp-d1-text-primary: #333;
+    --mk-mp-d1-text-secondary: #666;
+    --mk-mp-d1-accent-color: #333;
+    --mk-mp-d1-progress-bg: rgba(0, 0, 0, 0.1);
+    --mk-mp-d1-thumb-border: #fff;
+    --mk-mp-d1-link-color: #66CCFF; /* Light Cyan Blue */
+    --mk-mp-d1-link-hover-color: #33BBFF; /* Vivid Cyan */
+}
+
+:root[data-theme="dark"] {
+    --mk-mp-d1-bg-gradient: linear-gradient(135deg, #1e2024, #23272b);
+    --mk-mp-d1-player-bg: rgb(56, 58, 62, 0.9);
+    --mk-mp-d1-text-primary: #fff;
+    --mk-mp-d1-text-secondary: #ccc;
+    --mk-mp-d1-accent-color: #fff;
+    --mk-mp-d1-progress-bg: rgba(255, 255, 255, 0.1);
+    --mk-mp-d1-thumb-border: rgb(56 58 62);
+    --mk-mp-d1-link-color: #0078D4; /* Bright Blue */
+    --mk-mp-d1-link-hover-color: #005A9E; /* Deep Blue */
+}
+
+
+@container (max-width: 429px) {
+    .mk-mp-d1-visualizer {
+        display: none!important;
+    }
+    .mk-mp-d1-volume-container {
+        display: none!important;
+    }
+}
+
+.mk-mp-d1 {
+    container-type: inline-size;
+    width: 100%;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: inline-block;
+    justify-content: center;
+    margin: 20px 0;
+    direction: ltr;
+    transition: transform 0.3s ease, bottom 0.3s ease; /* Smooth transition for position-like changes */
+    position: relative; /* Default positioning */
+    bottom: 0; /* Default bottom position */
+    transform: translateY(0); /* Default transform for no movement */
+}
+
+.mk-mp-d1.mk-mp-unpinned {
+    position: fixed; /* Fixed position for overlay-like behavior */
+    z-index: 3;
+    left: 10px;
+    right: 10px;
+    bottom: 0; /* Align to the bottom */
+    max-width: 700px;
+    margin: 0 auto;
+    transform: translateY(-20px); /* Add transform for smooth animation */
+}
+
+
+.mk-mp-d1-audio-player {
+    font-size: initial!important;
+    background: var(--mk-mp-d1-player-bg);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 25px;
+    box-shadow: 0 5px 15px 0 rgba(42, 42, 42, 0.37);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    position: relative;
+}
+
+.mk-mp-d1-theme-toggle {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: 3px solid var(--mk-mp-d1-text-primary);
+    color: var(--mk-mp-d1-text-primary);
+    cursor: pointer;
+    font-size: 1.2em;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    width: 35px;
+    height: 35px;
+}
+
+.mk-mp-d1-theme-toggle:hover {
+    color: var(--mk-mp-d1-thumb-border);
+    background: var(--mk-mp-d1-accent-color);
+    transform: scale(1.1);
+}
+
+.mk-mp-d1-pin-toggle {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    top: 10px;
+    left: 10px;
+    background: none;
+    color: var(--mk-mp-d1-text-primary);
+    cursor: pointer;
+    border: none;
+    font-size: 1.2em;
+    padding: 5px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.mk-mp-d1-pin-toggle:hover {
+    transform: scale(1.2);
+}
+
+.mk-mp-d1-pin-toggle:active {
+    transform: scale(0.8);
+}
+
+/* Add a slash when the .flow class is toggled */
+.mk-mp-d1.mk-mp-pinned .mk-mp-d1-pin-toggle::after {
+    content: ''; /* Empty content to create the slash */
+    position: absolute;
+    width: 2px; /* Thickness of the slash */
+    height: 80%; /* Height of the slash */
+    border-radius: 100px;
+    background: var(--mk-mp-d1-text-primary); /* Color of the slash */
+    transform: rotate(-55deg); /* Diagonal slash */
+    transform-origin: center;
+    z-index: 1; /* Ensure it's above the pin icon */
+}
+
+.mk-mp-d1.mk-mp-pinned .mk-mp-d1-pin-toggle::after:hover {
+    transform: scale(1.2);
+}
+
+.mk-mp-d1.mk-mp-pinned .mk-mp-d1-pin-toggle::after:active {
+    transform: scale(0.8);
+}
+
+
+.mk-mp-d1-artist {
+    font-size: 0.9em;
+    color: var(--mk-mp-d1-text-secondary);
+}
+
+.mk-mp-d1-progress-area {
+    position: relative;
+    /*margin: 20px 0;*/
+    width: 100%;
+}
+
+.mk-mp-d1-progress-bar {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 6px; /* Height of the progress bar */
+    background: var(--mk-mp-d1-progress-bg);
+    border-radius: 4px;
+    cursor: pointer;
+    position: relative;
+    overflow: visible; /* Allow the thumb to extend beyond the bar */
+}
+
+.mk-mp-d1-progress-bar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: var(--mk-mp-d1-progress-percentage, 0%);
+    height: 100%;
+    background: var(--mk-mp-d1-accent-color);
+    border-radius: 4px;
+    z-index: 1;
+}
+
+.mk-mp-d1-progress-bar::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    background: var(--mk-mp-d1-accent-color);
+    border-radius: 50%;
+    cursor: pointer;
+    margin-top: 0;
+    z-index: 2;
+}
+
+.mk-mp-d1-progress-bar::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    background: var(--mk-mp-d1-accent-color);
+    border-radius: 50%;
+    cursor: pointer;
+    position: relative;
+    z-index: 2;
+}
+
+.mk-mp-d1-controls {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    margin: 20px 0;
+}
+
+.mk-mp-d1-control-btn {
+    background: none;
+    border: none;
+    color: var(--mk-mp-d1-text-primary);
+    cursor: pointer;
+    font-size: 1.2em;
+    transition: all 0.3s ease;
+}
+
+.mk-mp-d1-control-btn:hover {
+    transform: scale(1.1);
+}
+
+.mk-mp-d1-play-pause {
+    margin-bottom: 5px;
+    width: 60px;
+    aspect-ratio: 1 / 1;
+    background: var(--mk-mp-d1-accent-color);
+    border-radius: 100%;
+    border: var(--mk-mp-d1-thumb-border) solid 3px;
+    box-shadow: 0 0 0 3px var(--mk-mp-d1-accent-color); /* Adds a 5px "gap" between border and background */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--mk-mp-d1-thumb-border);
+    padding: 0;
+    font-size: 1.5em;
+}
+
+
+.mk-mp-d1-play-pause:hover {
+    transform: scale(1.1);
+}
+
+.mk-mp-d1-play-pause:active {
+    transform: scale(0.95); /* Slightly shrinks the button when active/clicked */
+}
+
+.mk-mp-d1-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Distribute items across the container */
+    gap: 0; /* Optional: Set to 0 unless you want additional space between adjacent items */
+    width: 100%; /* Ensure the container spans the full width */
+}
+
+.mk-mp-d1-volume-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    color: var(--mk-mp-d1-text-primary);
+}
+
+.mk-mp-d1-volume-container i {
+    width: 24px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.mk-mp-d1-volume-icon {
+    cursor: pointer;
+}
+
+.mk-mp-d1-volume-icon:active {
+    transform: scale(0.9);
+}
+
+.mk-mp-d1-volume-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100px;
+    height: 4px;
+    background: var(--mk-mp-d1-progress-bg);
+    border-radius: 2px;
+    cursor: pointer;
+    position: relative;
+    overflow: visible;
+}
+
+.mk-mp-d1-volume-slider::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: var(--mk-mp-d1-volume-percentage, 0%);
+    background: var(--mk-mp-d1-accent-color);
+    z-index: 1;
+    border-radius: 2px;
+}
+
+.mk-mp-d1-volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    background: var(--mk-mp-d1-text-primary);
+    border-radius: 50%;
+    cursor: pointer;
+    position: relative;
+    margin-top: 0;
+    z-index: 2;
+}
+
+.mk-mp-d1-volume-slider::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    background: var(--mk-mp-d1-text-primary);
+    border-radius: 50%;
+    cursor: pointer;
+    position: relative;
+    margin-top: 0;
+    z-index: 2;
+}
+
+.mk-mp-d1-visualizer {
+    height: 30px;
+    display: flex;
+    margin-inline: 5px;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+}
+
+.mk-mp-d1-bar {
+    width: 4px;
+    background: var(--mk-mp-d1-accent-color);
+    border-radius: 2px;
+}
+
+.mk-mp-d1-artist a {
+    color: var(--mk-mp-d1-link-color);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.mk-mp-d1-artist a:hover {
+    color: var(--mk-mp-d1-link-hover-color);
+    text-decoration: underline;
+}
+
+.mk-mp-d1-time-info {
+    display: flex;
+    justify-content: space-between;
+    color: var(--mk-mp-d1-text-secondary);
+    font-size: 0.8em;
+    margin-top: 5px;
+}
