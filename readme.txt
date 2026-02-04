@@ -1,8 +1,8 @@
-=== ATS Moknah - Article to Speech ===
+=== ATS Moknah ===
 Contributors: moknah
-Tags: text-to-speech, tts, accessibility, audio, ai-voice, arabic, multilingual
+Tags: text-to-speech, tts, accessibility, audio, ai-voice
 Requires at least: 5.8
-Tested up to: 6.4
+Tested up to: 6.9
 Requires PHP: 7.4
 Stable tag: 1.0
 License: GPLv2 or later

@@ -1,6 +1,7 @@
 <?php
 namespace ATS_Moknah;
 
+if (!defined('ABSPATH')) exit;
 class Callback {
 
     public static function register() {
@@ -21,7 +22,6 @@ class Callback {
         $apiKey = get_option('ats_moknah_api_key');
 
         if (empty($apiKey)) {
-            error_log('[ATS Moknah Callback] API key not configured');
             return new \WP_Error('unauthorized', 'API key not configured', ['status' => 401]);
         }
 
@@ -32,19 +32,16 @@ class Callback {
         $signature = $data['response']['signature'] ?? null;
 
         if (!$postId || !$audioUrl || !$srtUrl || !$signature) {
-            error_log('[ATS Moknah Callback] Missing required fields');
             return false;
         }
 
         $post = get_post($postId);
         if (!$post) {
-            error_log('[ATS Moknah Callback] Post not found: ' . $postId);
             return false;
         }
 
         $enabled = get_post_meta($postId, '_ats_moknah_enabled', true);
         if ($enabled !== '1') {
-            error_log('[ATS Moknah Callback] TTS not enabled for post: ' . $postId);
             return false;
         }
 
@@ -52,7 +49,6 @@ class Callback {
         $payload = $postId . '|' . $audioUrl . '|' . $srtUrl;
         $expectedSignature = hash_hmac('sha256', $payload, $apiKeyHash);
         if (!hash_equals($expectedSignature, $signature)) {
-            error_log('[ATS Moknah Callback] Invalid HMAC signature');
             return new \WP_Error('unauthorized', 'Invalid signature', ['status' => 401]);
         }
 
@@ -75,7 +71,7 @@ class Callback {
 
             $post = get_post($postId);
             if (!$post) {
-                throw new \Exception('Post not found: ' . $postId);
+                throw new \Exception('Post not found: ' . intval($postId));
             }
 
             // Handle success case
@@ -91,14 +87,12 @@ class Callback {
             }
 
             // Handle unknown status
-            error_log('[ATS Moknah Callback] Unknown status received: ' . $status);
             update_post_meta($postId, '_ats_moknah_status', 'unknown');
-            update_post_meta($postId, '_ats_moknah_status_details', 'Received unknown status from Moknah API: ' . $status);
+            update_post_meta($postId, '_ats_moknah_status_details', 'Received unknown status from Moknah API: ' . sanitize_text_field($status));
 
             return ['status' => 'warning', 'message' => 'Unknown callback status'];
 
         } catch (\Exception $e) {
-            error_log('[ATS Moknah Callback Error] ' . $e->getMessage());
 
             if (isset($postId) && $postId) {
                 update_post_meta($postId, '_ats_moknah_status', 'callback_error');
@@ -128,7 +122,7 @@ class Callback {
 
         // Validate audio URL
         if (!filter_var($audioUrl, FILTER_VALIDATE_URL)) {
-            throw new \Exception('Invalid audio file URL received: ' . $audioUrl);
+            throw new \Exception('Invalid audio file URL received: ' . esc_url_raw($audioUrl));
         }
 
         // Update post meta
@@ -150,7 +144,7 @@ class Callback {
         update_post_meta($postId, '_ats_moknah_status_details', 'Audio generated successfully on ' . current_time('F j, Y \a\t g:i a'));
         update_post_meta($postId, '_ats_moknah_completed_at', current_time('mysql'));
 
-        error_log('[ATS Moknah Callback] Successfully processed audio for post ID ' . $postId);
+
         // Send notification to post author
         self::notifyAuthor($post, $audioUrl);
 
@@ -174,7 +168,6 @@ class Callback {
         update_post_meta($postId, '_ats_moknah_status_details', sanitize_text_field($fullError));
         update_post_meta($postId, '_ats_moknah_failed_at', current_time('mysql'));
 
-        error_log('[ATS Moknah Callback] Audio generation failed for post ID ' . $postId . ': ' . $fullError);
 
         // Notify author of failure
         self::notifyAuthorFailure($post, $fullError);
@@ -195,12 +188,11 @@ class Callback {
         $author = get_userdata($post->post_author);
 
         if (!$author || !$author->user_email) {
-            error_log('[ATS Moknah Callback] Cannot send notification - author not found for post ' . $post->ID);
             return;
         }
 
         $postTitle = get_the_title($post->ID);
-        $postUrl = get_edit_post_link($post->ID, 'raw');
+        $postUrl  = get_permalink($post->ID);
         $siteName = get_bloginfo('name');
 
         $subject = sprintf('[%s] Audio Generated: %s', $siteName, $postTitle);
@@ -215,8 +207,8 @@ class Callback {
             "This is an automated notification from ATS Moknah plugin.",
             $author->display_name,
             $postTitle,
-            $audioUrl,
-            $postUrl
+            esc_url_raw($audioUrl),
+            esc_url_raw($postUrl)
         );
 
         $headers = [
@@ -224,13 +216,7 @@ class Callback {
             'From: ' . $siteName . ' <' . get_option('admin_email') . '>'
         ];
 
-        $sent = wp_mail($author->user_email, $subject, $message, $headers);
-
-        if ($sent) {
-            error_log('[ATS Moknah Callback] Email notification sent to author for post ' . $post->ID);
-        } else {
-            error_log('[ATS Moknah Callback] Failed to send email notification to author for post ' . $post->ID);
-        }
+        wp_mail($author->user_email, $subject, $message, $headers);
     }
 
     /**
@@ -269,8 +255,8 @@ class Callback {
             "This is an automated notification from ATS Moknah plugin.",
             $author->display_name,
             $postTitle,
-            $errorMessage,
-            $postUrl
+            sanitize_text_field($errorMessage),
+            esc_url_raw($postUrl)
         );
 
         $headers = [
@@ -313,8 +299,8 @@ class Callback {
             "ATS Moknah notification",
             $postTitle,
             $authorName,
-            $audioUrl,
-            $postUrl
+            esc_url_raw($audioUrl),
+            esc_url_raw($postUrl)
         );
 
         wp_mail($adminEmail, $subject, $message);
@@ -356,8 +342,8 @@ class Callback {
             "ATS Moknah notification",
             $postTitle,
             $authorName,
-            $errorMessage,
-            $postUrl
+            sanitize_text_field($errorMessage),
+            esc_url_raw($postUrl)
         );
 
         wp_mail($adminEmail, $subject, $message);

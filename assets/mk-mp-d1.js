@@ -124,9 +124,9 @@ const mkMpD1UpdateVolumeIcon = (volume) => {
 	} else if (volume > 0 && volume <= 0.25) {
 		mkMpD1VolumeIcon.className = 'mk-mp-d1-volume-icon fas fa-volume-off';
 	} else if (volume > 0.25 && volume <= 0.5) {
-		mkMpD1VolumeIcon.className = 'mk-mp-d1-volume-icon fas fa-volume-low';
+		mkMpD1VolumeIcon.className = 'mk-mp-d1-volume-icon fas fa-volume-down';
 	} else if (volume > 0.5) {
-		mkMpD1VolumeIcon.className = 'mk-mp-d1-volume-icon fas fa-volume-high';
+		mkMpD1VolumeIcon.className = 'mk-mp-d1-volume-icon fas fa-volume-up';
 	}
 };
 

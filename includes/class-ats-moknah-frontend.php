@@ -19,12 +19,11 @@ class Frontend {
         $enabled = get_post_meta($post->ID, '_ats_moknah_enabled', true);
         if ($enabled !== '1') return;
 
-        // --- enqueue CSS/JS normally ---
         wp_enqueue_style(
-            'mk-fontawesome',
-            'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css',
+            'ats-mini-icons',
+            plugin_dir_url(__FILE__) . '../assets/fontawesome/style.css',
             [],
-            '6.0.0'
+            '1.0'
         );
 
         // Plugin CSS
@@ -40,7 +39,7 @@ class Frontend {
             'moknah-highlighter',
             plugin_dir_url(__FILE__) .'../assets/moknah-highlighter.js',
             [],
-            null,
+            filemtime(plugin_dir_path(__FILE__) . '../assets/moknah-highlighter.js'),
             true
         );
 

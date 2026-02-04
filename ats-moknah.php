@@ -9,8 +9,8 @@ Author: Moknah.io
 Author URI: https://moknah.io/
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
-Text Domain: Moknah
-Plugin URI: https://moknah.io/
+Text Domain: ats-moknah
+Plugin URI: https://github.com/Moknahio/Moknah-ATS
 */
 
 if (version_compare(PHP_VERSION, '7.4', '<')) {
@@ -24,10 +24,12 @@ if (version_compare(PHP_VERSION, '7.4', '<')) {
 
 
 if (!defined('ABSPATH')) exit;
-$autoload = plugin_dir_path(__FILE__) . 'vendor/autoload.php';
-if (file_exists($autoload)) {
-    require_once $autoload;
+
+$ats_moknah_autoload = plugin_dir_path(__FILE__) . 'vendor/autoload.php';
+if (file_exists($ats_moknah_autoload)) {
+    require_once $ats_moknah_autoload;
 }
+
 require_once plugin_dir_path(__FILE__) . 'includes/class-ats-moknah-client.php';
 require_once plugin_dir_path(__FILE__) . 'includes/class-ats-moknah-admin.php';
 require_once plugin_dir_path(__FILE__) . 'includes/class-ats-moknah-callback.php';

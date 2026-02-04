@@ -1,7 +1,8 @@
 <?php
 
-namespace Moknah;
+namespace ATS_Moknah;
 
+if (!defined('ABSPATH')) exit;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use Symfony\Component\DomCrawler\Crawler;

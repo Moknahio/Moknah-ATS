@@ -1,7 +1,11 @@
 <?php
-
 namespace ATS_Moknah;
 
+// Prevent direct file access
+if (!defined('ABSPATH')) exit;
+function ats_moknah_sanitize_checkbox($input) {
+    return ($input === '1') ? '1' : '0';
+}
 class Admin
 {
     private static $errors = [];
@@ -45,16 +49,37 @@ class Admin
         });
 
         add_action('admin_init', function () {
-            register_setting('ats_moknah_settings', 'ats_moknah_api_key');
-            register_setting('ats_moknah_settings', 'ats_moknah_callback_url');
-            register_setting('ats_moknah_settings', 'ats_moknah_voice_id');
-            register_setting('ats_moknah_settings', 'ats_moknah_article_selector');
-            register_setting('ats_moknah_settings', 'ats_moknah_skipped_selectors');
 
-            // New notification settings
-            register_setting('ats_moknah_settings', 'ats_moknah_notify_author');
-            register_setting('ats_moknah_settings', 'ats_moknah_notify_admin');
-            register_setting('ats_moknah_settings', 'ats_moknah_notify_failures');
+            // Text fields
+            register_setting('ats_moknah_settings', 'ats_moknah_api_key', [
+                'sanitize_callback' => 'sanitize_text_field'
+            ]);
+            register_setting('ats_moknah_settings', 'ats_moknah_callback_url', [
+                'sanitize_callback' => 'esc_url_raw'
+            ]);
+            register_setting('ats_moknah_settings', 'ats_moknah_voice_id', [
+                'sanitize_callback' => 'sanitize_text_field'
+            ]);
+            register_setting('ats_moknah_settings', 'ats_moknah_article_selector', [
+                'sanitize_callback' => 'sanitize_text_field'
+            ]);
+            register_setting('ats_moknah_settings', 'ats_moknah_skipped_selectors', [
+                'sanitize_callback' => 'sanitize_text_field'
+            ]);
+
+            // Checkbox/boolean notifications
+
+
+            register_setting('ats_moknah_settings', 'ats_moknah_notify_author', [
+                'sanitize_callback' => 'ats_moknah_sanitize_checkbox'
+            ]);
+            register_setting('ats_moknah_settings', 'ats_moknah_notify_admin', [
+                'sanitize_callback' => 'ats_moknah_sanitize_checkbox'
+            ]);
+            register_setting('ats_moknah_settings', 'ats_moknah_notify_failures', [
+                'sanitize_callback' => 'ats_moknah_sanitize_checkbox'
+            ]);
+
         });
 
         add_action('add_meta_boxes', [self::class, 'registerMetaBoxes']);
@@ -79,13 +104,11 @@ class Admin
     private static function addError($message)
     {
         self::$errors[] = $message;
-        error_log('[ATS Moknah Error] ' . $message);
     }
 
     private static function addNotice($message)
     {
         self::$notices[] = $message;
-        error_log('[ATS Moknah Notice] ' . $message);
     }
 
     /**
@@ -134,13 +157,11 @@ class Admin
                 'From: ' . $siteName . ' <' . $adminEmail . '>'
             ];
 
-            error_log('[ATS Moknah] Attempting to send test email to: ' . $to);
 
             // Capture potential PHP mail errors
             $phpmailer_error = '';
             add_action('wp_mail_failed', function($wp_error) use (&$phpmailer_error) {
                 $phpmailer_error = $wp_error->get_error_message();
-                error_log('[ATS Moknah] wp_mail failed: ' . $phpmailer_error);
             });
 
             $sent = wp_mail($to, $subject, $message, $headers);
@@ -159,7 +180,6 @@ class Admin
                 );
             }
 
-            error_log('[ATS Moknah] Test email sent successfully to: ' . $to);
 
             wp_send_json_success([
                 'message' => sprintf(
@@ -170,7 +190,6 @@ class Admin
             ]);
 
         } catch (\Exception $e) {
-            error_log('[ATS Moknah Test Email Error] ' . $e->getMessage());
             wp_send_json_error([
                 'message' => $e->getMessage(),
                 'code' => 'email_test_failed'
@@ -218,15 +237,13 @@ class Admin
                 throw new \Exception('Post not found. It may have been deleted.');
             }
 
-            error_log('[ATS Moknah] AJAX Request for post ID: ' . $post_id);
-
-            $enabled = $_POST['ats_moknah_enabled'] ?? '0';
+            $enabled = isset($_POST['ats_moknah_enabled']) ? sanitize_text_field(wp_unslash($_POST['ats_moknah_enabled'])) : '0';
             update_post_meta($post_id, '_ats_moknah_enabled', $enabled);
 
-            $preprocess = $_POST['ats_moknah_preprocessing'] ?? '1';
+            $preprocess = isset($_POST['ats_moknah_preprocessing']) ? sanitize_text_field(wp_unslash($_POST['ats_moknah_preprocessing'])) : '1';
             update_post_meta($post_id, '_ats_moknah_preprocessing', $preprocess);
 
-            $voice = sanitize_text_field($_POST['ats_moknah_voice_id'] ?? '');
+            $voice = isset($_POST['ats_moknah_voice_id']) ? sanitize_text_field(wp_unslash($_POST['ats_moknah_voice_id'])) : '';
 
             if ($voice) {
                 $voices = self::getVoices();
@@ -274,7 +291,6 @@ class Admin
             }
 
         } catch (\Exception $e) {
-            error_log('[ATS Moknah AJAX Error] ' . $e->getMessage());
             wp_send_json_error([
                 'message' => $e->getMessage(),
                 'code' => 'generation_failed'
@@ -288,7 +304,7 @@ class Admin
             wp_enqueue_style('ats-moknah-admin', plugin_dir_url(__FILE__) . '../assets/admin.css', [], '1.0');
             wp_enqueue_script('ats-moknah-settings', plugin_dir_url(__FILE__) . '../assets/settings.js', ['jquery'], '1.0', true);
             wp_localize_script('ats-moknah-settings', 'atsMoknahSettings', [
-                'ajaxUrl' => admin_url('admin-ajax.php'),
+                'ajaxUrl' => esc_url(admin_url('admin-ajax.php')),
                 'nonce' => wp_create_nonce('ats_moknah_settings_nonce')
             ]);
         }
@@ -298,7 +314,7 @@ class Admin
         if ($hook === 'post.php' || $hook === 'post-new.php') {
             wp_enqueue_script('ats-moknah-admin', plugin_dir_url(__FILE__) . '../assets/admin.js', ['jquery'], '1.0', true);
             wp_localize_script('ats-moknah-admin', 'atsMoknah', [
-                'ajaxUrl' => admin_url('admin-ajax.php'),
+                'ajaxUrl' => esc_url(admin_url('admin-ajax.php')),
                 'nonce' => wp_create_nonce('ats_moknah_ajax'),
                 'voices' => self::getVoices(),
                 'errors' => self::$errors
@@ -342,13 +358,13 @@ class Admin
             <?php if (!$hasApiKey): ?>
                 <div class="notice notice-error inline" style="margin: 0 0 15px 0; padding: 10px;">
                     <p style="margin: 0;"><strong>API Key Required:</strong> Please configure your Moknah API key in
-                        <a href="<?php echo admin_url('admin.php?page=ats-moknah'); ?>">settings</a> first.</p>
+                        <a href="<?php echo esc_url(admin_url('admin.php?page=ats-moknah')); ?>">settings</a> first.</p>
                 </div>
             <?php elseif (!$hasVoices): ?>
                 <div class="notice notice-warning inline" style="margin: 0 0 15px 0; padding: 10px;">
                     <p style="margin: 0;"><strong>No Voices Available:</strong> Unable to load voices. Please check your
                         API key in
-                        <a href="<?php echo admin_url('admin.php?page=ats-moknah'); ?>">settings</a>.</p>
+                        <a href="<?php echo esc_url(admin_url('admin.php?page=ats-moknah')); ?>">settings</a>.</p>
                 </div>
             <?php endif; ?>
 
@@ -450,12 +466,12 @@ class Admin
     {
         if ($post->post_type !== 'post') return;
         if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
-        if (!isset($_POST['ats_moknah_nonce']) || !wp_verify_nonce($_POST['ats_moknah_nonce'], 'ats_moknah_meta')) return;
+        if (!isset($_POST['ats_moknah_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['ats_moknah_nonce'])), 'ats_moknah_meta')) return;
         if (!current_user_can('edit_post', $post_id)) return;
 
         update_post_meta($post_id, '_ats_moknah_enabled', isset($_POST['ats_moknah_enabled']) ? '1' : '0');
 
-        $voice = sanitize_text_field($_POST['ats_moknah_voice_id'] ?? '');
+        $voice = isset($_POST['ats_moknah_voice_id']) ? sanitize_text_field(wp_unslash($_POST['ats_moknah_voice_id'])) : '';
         if ($voice && array_key_exists($voice, self::getVoices())) {
             update_post_meta($post_id, '_ats_moknah_voice_id', $voice);
         } else {
@@ -471,7 +487,7 @@ class Admin
         <div class="wrap ats-settings-wrap">
             <div class="ats-settings-header">
                 <h1>
-                    <img src="https://moknah.io/favicon.ico" alt="Moknah Logo" class="ats-settings-logo">
+                    <img src="<?php echo esc_url( plugin_dir_url(__FILE__) . '../assets/favicon.ico' ); ?>" alt="Moknah Logo" class="ats-settings-logo">
                     ATS Moknah Settings
                 </h1>
                 <p class="description">Configure your Article to Speech settings and default preferences.</p>
@@ -546,7 +562,7 @@ class Admin
                                        name="ats_moknah_callback_url"
                                        value="<?php echo esc_attr(get_option('ats_moknah_callback_url')); ?>"
                                        class="ats-input ats-input-large"
-                                       placeholder="Default: <?php echo rest_url('ats-moknah/v1/callback') ?>">
+                                       placeholder="Default: <?php echo esc_attr(rest_url('ats-moknah/v1/callback')); ?>">
                             </div>
                         </div>
                     </div>
@@ -706,7 +722,6 @@ class Admin
 
             update_post_meta($post_id, '_ats_moknah_status', 'processing');
             update_post_meta($post_id, '_ats_moknah_status_details', 'Preparing content for audio generation...');
-            error_log('[ATS Moknah] Starting TTS processing for post ID ' . $post_id);
 
             $apiKey = get_option('ats_moknah_api_key');
             if (empty($apiKey)) {
@@ -727,7 +742,7 @@ class Admin
                 throw new \Exception('No voice selected. Please select a voice in post settings or configure a default voice.');
             }
 
-            $client = new \Moknah\MoknahClient(
+            $client = new \ATS_Moknah\MoknahClient(
                 'https://api.moknah.io/process-text',
                 $apiKey
             );
@@ -752,7 +767,6 @@ class Admin
                 throw new \Exception('Post content is too short (less than 50 characters). Please add more content.');
             }
 
-            error_log('[ATS Moknah] Processing post ID ' . $post_id . ' - Content length: ' . strlen($content) . ' characters');
 
             $preprocessing = get_post_meta($post_id, '_ats_moknah_preprocessing', true);
 
@@ -769,7 +783,6 @@ class Admin
             update_post_meta($post_id, '_ats_moknah_status', 'queued');
             update_post_meta($post_id, '_ats_moknah_status_details', 'Audio generation request sent successfully. Processing may take a few minutes.');
 
-            error_log('[ATS Moknah] Successfully queued TTS for post ID ' . $post_id);
 
         } catch (\Exception $e) {
             $error_message = $e->getMessage();
@@ -786,7 +799,6 @@ class Admin
             update_post_meta($post_id, '_ats_moknah_status_details', $error_message);
             delete_post_meta($post_id, '_ats_moknah_processing');
 
-            error_log('[ATS Moknah Error] Post ID ' . $post_id . ': ' . $e->getMessage());
 
             throw new \Exception($error_message);
 
@@ -806,52 +818,43 @@ function voice_list()
             return ['error' => 'API key is not configured'];
         }
 
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            "Authorization: Bearer $apiKey",
-            "Accept-Language: en"
+        // Use WordPress HTTP API instead of cURL
+        $response = wp_remote_post($url, [
+            'timeout' => 30,
+            'headers' => [
+                'Authorization' => 'Bearer ' . $apiKey,
+                'Accept-Language' => 'en'
+            ],
+            'sslverify' => true
         ]);
 
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $curlError = curl_error($ch);
-        curl_close($ch);
-
-        if ($curlError) {
-            error_log("ATS Moknah cURL Error: " . $curlError);
+        if (is_wp_error($response)) {
+            $error_message = $response->get_error_message();
             return ['error' => 'Connection error: Unable to reach Moknah API. Please check your internet connection.'];
         }
 
+        $httpCode = wp_remote_retrieve_response_code($response);
+        $body = wp_remote_retrieve_body($response);
+
         if ($httpCode === 401 || $httpCode === 403) {
-            error_log("ATS Moknah API: Authentication failed (HTTP $httpCode)");
             return ['error' => 'Authentication failed. Please check your API key in settings.'];
         }
 
         if ($httpCode !== 200) {
-            error_log("ATS Moknah API: HTTP error $httpCode - Response: " . substr($response, 0, 500));
             return ['error' => "API request failed (HTTP $httpCode). Please try again later."];
         }
 
-        $voices = json_decode($response, true);
+        $voices = json_decode($body, true);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
-            error_log("ATS Moknah JSON Error: " . json_last_error_msg() . " - Response: " . substr($response, 0, 500));
             return ['error' => 'Invalid response from Moknah API. Please try again later.'];
         }
 
         if (!is_array($voices)) {
-            error_log("ATS Moknah: API response is not an array - " . gettype($voices));
             return ['error' => 'Unexpected response format from Moknah API.'];
         }
 
         if (empty($voices)) {
-            error_log("ATS Moknah: No voices returned from API");
             return ['error' => 'No voices available. Please contact Moknah support.'];
         }
 
@@ -859,12 +862,10 @@ function voice_list()
 
         foreach ($voices as $voice) {
             if (!is_array($voice)) {
-                error_log("ATS Moknah: Invalid voice entry (not array): " . print_r($voice, true));
                 continue;
             }
 
             if (!isset($voice['voice_id'], $voice['voice_name'], $voice['voice_sample_url'])) {
-                error_log("ATS Moknah: Missing required fields in voice: " . print_r($voice, true));
                 continue;
             }
 
@@ -875,15 +876,12 @@ function voice_list()
         }
 
         if (empty($voicelist)) {
-            error_log("ATS Moknah: No valid voices after processing API response");
             return ['error' => 'No valid voices found in API response.'];
         }
 
-        error_log("ATS Moknah: Successfully loaded " . count($voicelist) . " voices");
         return $voicelist;
 
     } catch (\Exception $e) {
-        error_log("ATS Moknah Exception in voice_list(): " . $e->getMessage());
         return ['error' => 'Unexpected error loading voices: ' . $e->getMessage()];
     }
 }
