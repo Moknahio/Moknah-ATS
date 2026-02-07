@@ -71,13 +71,13 @@ class Admin
 
 
             register_setting('ats_moknah_settings', 'ats_moknah_notify_author', [
-                'sanitize_callback' => 'ats_moknah_sanitize_checkbox'
+                'sanitize_callback' => __NAMESPACE__ . '\\ats_moknah_sanitize_checkbox'
             ]);
             register_setting('ats_moknah_settings', 'ats_moknah_notify_admin', [
-                'sanitize_callback' => 'ats_moknah_sanitize_checkbox'
+                'sanitize_callback' => __NAMESPACE__ . '\\ats_moknah_sanitize_checkbox'
             ]);
             register_setting('ats_moknah_settings', 'ats_moknah_notify_failures', [
-                'sanitize_callback' => 'ats_moknah_sanitize_checkbox'
+                'sanitize_callback' => __NAMESPACE__ . '\\ats_moknah_sanitize_checkbox'
             ]);
 
         });
@@ -483,6 +483,10 @@ class Admin
     {
         $voices = self::getVoices();
         $hasVoices = !empty($voices);
+
+        if (isset($_GET['settings-updated']) && $_GET['settings-updated'] === 'true') {
+            echo '<div class="notice notice-success is-dismissible"><p>Settings saved successfully.</p></div>';
+        }
         ?>
         <div class="wrap ats-settings-wrap">
             <div class="ats-settings-header">
@@ -628,7 +632,7 @@ class Admin
                                     <input type="checkbox"
                                            name="ats_moknah_notify_author"
                                            value="1"
-                                        <?php checked(get_option('ats_moknah_notify_author', '1'), '1'); ?>>
+                                        <?php checked(get_option('ats_moknah_notify_author', '0'), '1'); ?>>
                                     <span>Notify post author when audio is ready</span>
                                 </label>
                                 <br>
@@ -636,7 +640,7 @@ class Admin
                                     <input type="checkbox"
                                            name="ats_moknah_notify_admin"
                                            value="1"
-                                        <?php checked(get_option('ats_moknah_notify_admin'), '1'); ?>>
+                                        <?php checked(get_option('ats_moknah_notify_admin'), '0'); ?>>
                                     <span>Notify site administrator</span>
                                 </label>
                                 <br>
@@ -644,7 +648,7 @@ class Admin
                                     <input type="checkbox"
                                            name="ats_moknah_notify_failures"
                                            value="1"
-                                        <?php checked(get_option('ats_moknah_notify_failures', '1'), '1'); ?>>
+                                        <?php checked(get_option('ats_moknah_notify_failures', '0'), '1'); ?>>
                                     <span>Send notifications for failed generations</span>
                                 </label>
                             </div>
