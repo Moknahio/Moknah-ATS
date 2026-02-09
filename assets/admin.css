@@ -45,7 +45,7 @@
     background-color: var(--wp-admin-border-color, #8c8f94);
     border-radius: 20px;
     transition: all 0.3s ease;
-    margin-right: 12px;
+    margin-inline-end: 12px;
     flex-shrink: 0;
 }
 
@@ -95,7 +95,7 @@
 
 /* Select Inputs */
 .ats-select {
-    width: 100%;
+    width: -webkit-fill-available;
     padding: 8px 12px;
     border: 1px solid var(--wp-admin-border-color, #8c8f94);
     border-radius: 4px;
@@ -170,7 +170,7 @@
 /* Help Text */
 .ats-help-text {
     background: var(--wp-admin-info-bg, #f0f6fc);
-    border-left: 3px solid var(--wp-admin-accent-color, #2271b1);
+    border-inline-start: 3px solid var(--wp-admin-accent-color, #2271b1);
 }
 
 .ats-help-text p {
@@ -379,13 +379,13 @@
 
 .ats-test-email-success {
     background: #edfaef;
-    border-left: 4px solid #00a32a;
+    border-inline-start: 4px solid #00a32a;
     color: #1e1e1e;
 }
 
 .ats-test-email-error {
     background: #fcf0f1;
-    border-left: 4px solid #d63638;
+    border-inline-start: 4px solid #d63638;
     color: #3c434a;
 }
 
@@ -405,7 +405,7 @@
 }
 
 #ats-test-email-btn .dashicons {
-    margin-right: 5px;
+    margin-inline-end: 5px;
 }
 
 .dashicons-spin {
@@ -446,5 +446,5 @@
     width: 32px;
     height: 32px;
     vertical-align: middle;
-    margin-right: 10px;
+    margin-inline-end: 10px;
 }

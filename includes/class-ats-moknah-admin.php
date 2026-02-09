@@ -3,9 +3,11 @@ namespace ATS_Moknah;
 
 // Prevent direct file access
 if (!defined('ABSPATH')) exit;
+
 function ats_moknah_sanitize_checkbox($input) {
     return ($input === '1') ? '1' : '0';
 }
+
 class Admin
 {
     private static $errors = [];
@@ -28,7 +30,7 @@ class Admin
             if (!empty($voices) && is_array($voices)) {
                 set_transient('ats_moknah_voices', $voices, 360000);
             } else {
-                self::addError('Failed to load voices. Please check your API key and try again.');
+                self::addError(__('Failed to load voices. Please check your API key and try again.', 'ats-moknah'));
             }
         }
 
@@ -39,8 +41,8 @@ class Admin
     {
         add_action('admin_menu', function () {
             add_menu_page(
-                'ATS Moknah',
-                'ATS Moknah',
+                __('ATS Moknah', 'ats-moknah'),
+                __('ATS Moknah', 'ats-moknah'),
                 'manage_options',
                 'ats-moknah',
                 [self::class, 'settingsPage'],
@@ -68,8 +70,6 @@ class Admin
             ]);
 
             // Checkbox/boolean notifications
-
-
             register_setting('ats_moknah_settings', 'ats_moknah_notify_author', [
                 'sanitize_callback' => __NAMESPACE__ . '\\ats_moknah_sanitize_checkbox'
             ]);
@@ -93,11 +93,11 @@ class Admin
     public static function displayAdminNotices()
     {
         foreach (self::$errors as $error) {
-            echo '<div class="notice notice-error is-dismissible"><p><strong>ATS Moknah:</strong> ' . esc_html($error) . '</p></div>';
+            echo '<div class="notice notice-error is-dismissible"><p><strong>' . esc_html__('ATS Moknah:', 'ats-moknah') . '</strong> ' . esc_html($error) . '</p></div>';
         }
 
         foreach (self::$notices as $notice) {
-            echo '<div class="notice notice-success is-dismissible"><p><strong>ATS Moknah:</strong> ' . esc_html($notice) . '</p></div>';
+            echo '<div class="notice notice-success is-dismissible"><p><strong>' . esc_html__('ATS Moknah:', 'ats-moknah') . '</strong> ' . esc_html($notice) . '</p></div>';
         }
     }
 
@@ -118,11 +118,11 @@ class Admin
     {
         try {
             if (!current_user_can('manage_options')) {
-                throw new \Exception('You do not have permission to test email settings.');
+                throw new \Exception(__('You do not have permission to test email settings.', 'ats-moknah'));
             }
 
             if (!check_ajax_referer('ats_moknah_settings_nonce', 'nonce', false)) {
-                throw new \Exception('Security verification failed. Please refresh the page and try again.');
+                throw new \Exception(__('Security verification failed. Please refresh the page and try again.', 'ats-moknah'));
             }
 
             $currentUser = wp_get_current_user();
@@ -131,9 +131,9 @@ class Admin
             $siteUrl = get_bloginfo('url');
 
             $to = $currentUser->user_email;
-            $subject = sprintf('[%s] Email Test - ATS Moknah', $siteName);
+            $subject = sprintf(__('[%s] Email Test - ATS Moknah', 'ats-moknah'), $siteName);
 
-            $message = sprintf(
+            $messageTemplate = __(
                 "This is a test email from ATS Moknah plugin.\n\n" .
                 "Site: %s\n" .
                 "Site URL: %s\n" .
@@ -157,7 +157,6 @@ class Admin
                 'From: ' . $siteName . ' <' . $adminEmail . '>'
             ];
 
-
             // Capture potential PHP mail errors
             $phpmailer_error = '';
             add_action('wp_mail_failed', function($wp_error) use (&$phpmailer_error) {
@@ -167,23 +166,23 @@ class Admin
             $sent = wp_mail($to, $subject, $message, $headers);
 
             if (!$sent) {
-                $error_details = $phpmailer_error ?: 'Unknown error';
+                $error_details = $phpmailer_error ?: __('Unknown error', 'ats-moknah');
 
                 // Provide helpful troubleshooting information
                 $troubleshooting = self::getEmailTroubleshooting();
 
                 throw new \Exception(
-                    'Failed to send test email. ' .
-                    'Error: ' . $error_details . '. ' .
-                    'Please check your email configuration. ' .
-                    $troubleshooting
+                    sprintf(
+                        __('Failed to send test email. Error: %s. Please check your email configuration. %s', 'ats-moknah'),
+                        $error_details,
+                        $troubleshooting
+                    )
                 );
             }
 
-
             wp_send_json_success([
                 'message' => sprintf(
-                    'Test email sent successfully to %s. Please check your inbox (and spam folder).',
+                    __('Test email sent successfully to %s. Please check your inbox (and spam folder).', 'ats-moknah'),
                     $to
                 ),
                 'email' => $to
@@ -206,12 +205,12 @@ class Admin
 
         // Check if using default PHP mail
         if (!class_exists('PHPMailer\\PHPMailer\\PHPMailer')) {
-            $tips[] = 'Your server may not be configured to send emails.';
+            $tips[] = __('Your server may not be configured to send emails.', 'ats-moknah');
         }
 
         // Common solutions
-        $tips[] = 'Try installing an SMTP plugin like "WP Mail SMTP" or "Easy WP SMTP".';
-        $tips[] = 'Contact your hosting provider to verify email sending is enabled.';
+        $tips[] = __('Try installing an SMTP plugin like "WP Mail SMTP" or "Easy WP SMTP".', 'ats-moknah');
+        $tips[] = __('Contact your hosting provider to verify email sending is enabled.', 'ats-moknah');
 
         return implode(' ', $tips);
     }
@@ -220,21 +219,21 @@ class Admin
     {
         try {
             if (!current_user_can('edit_posts')) {
-                throw new \Exception('You do not have permission to generate audio for posts.');
+                throw new \Exception(__('You do not have permission to generate audio for posts.', 'ats-moknah'));
             }
 
             if (!check_ajax_referer('ats_moknah_ajax', 'nonce', false)) {
-                throw new \Exception('Security verification failed. Please refresh the page and try again.');
+                throw new \Exception(__('Security verification failed. Please refresh the page and try again.', 'ats-moknah'));
             }
 
             $post_id = intval($_POST['post_id'] ?? 0);
             if (!$post_id) {
-                throw new \Exception('Invalid post ID provided.');
+                throw new \Exception(__('Invalid post ID provided.', 'ats-moknah'));
             }
 
             $post = get_post($post_id);
             if (!$post) {
-                throw new \Exception('Post not found. It may have been deleted.');
+                throw new \Exception(__('Post not found. It may have been deleted.', 'ats-moknah'));
             }
 
             $enabled = isset($_POST['ats_moknah_enabled']) ? sanitize_text_field(wp_unslash($_POST['ats_moknah_enabled'])) : '0';
@@ -248,44 +247,44 @@ class Admin
             if ($voice) {
                 $voices = self::getVoices();
                 if (empty($voices)) {
-                    throw new \Exception('Unable to load available voices. Please check your API key in settings.');
+                    throw new \Exception(__('Unable to load available voices. Please check your API key in settings.', 'ats-moknah'));
                 }
 
                 if (!array_key_exists($voice, $voices)) {
-                    throw new \Exception('Selected voice is not available. Please choose a different voice.');
+                    throw new \Exception(__('Selected voice is not available. Please choose a different voice.', 'ats-moknah'));
                 }
 
                 update_post_meta($post_id, '_ats_moknah_voice_id', $voice);
             }
 
             if ($enabled !== '1') {
-                throw new \Exception('Please enable Text-to-Speech before generating audio.');
+                throw new \Exception(__('Please enable Text-to-Speech before generating audio.', 'ats-moknah'));
             }
 
             $api_key = get_option('ats_moknah_api_key');
             if (empty($api_key)) {
-                throw new \Exception('API key not configured. Please add your Moknah API key in settings.');
+                throw new \Exception(__('API key not configured. Please add your Moknah API key in settings.', 'ats-moknah'));
             }
 
             $content = trim(wp_strip_all_tags(strip_shortcodes($post->post_content)));
             if (empty($content)) {
-                throw new \Exception('Post content is empty. Please add content before generating audio.');
+                throw new \Exception(__('Post content is empty. Please add content before generating audio.', 'ats-moknah'));
             }
 
             if (strlen($content) < 50) {
-                throw new \Exception('Post content is too short. Please add at least 50 characters of content.');
+                throw new \Exception(__('Post content is too short. Please add at least 50 characters of content.', 'ats-moknah'));
             }
 
             self::generateTTS($post_id);
             if (get_option('ats_moknah_notify_author', '1') !== '1') {
-                self::addNotice('Audio generation started. Notifications to post author are disabled.');
+                self::addNotice(__('Audio generation started. Notifications to post author are disabled.', 'ats-moknah'));
                 wp_send_json_success([
-                    'message' => 'Audio generation started successfully. Notifications to post author are disabled.',
+                    'message' => __('Audio generation started successfully. Notifications to post author are disabled.', 'ats-moknah'),
                     'status' => 'processing'
                 ]);
-            }else {
+            } else {
                 wp_send_json_success([
-                    'message' => 'Audio generation started successfully. You will be notified when it\'s ready.',
+                    'message' => __('Audio generation started successfully. You will be notified when it\'s ready.', 'ats-moknah'),
                     'status' => 'processing'
                 ]);
             }
@@ -326,7 +325,7 @@ class Admin
     {
         add_meta_box(
             'ats-moknah-controls',
-            'ATS Options',
+            __('ATS Options', 'ats-moknah'),
             [self::class, 'renderControlsBox'],
             'post',
             'side',
@@ -346,7 +345,7 @@ class Admin
         $status_details = get_post_meta($post->ID, '_ats_moknah_status_details', true);
         $defaultVoice = get_option('ats_moknah_voice_id');
         $current = $voice ?: $defaultVoice;
-        $buttonLabel = $audioUrl ? 'Regenerate Audio' : 'Generate Audio';
+        $buttonLabel = $audioUrl ? __('Regenerate Audio', 'ats-moknah') : __('Generate Audio', 'ats-moknah');
 
         $voices = self::getVoices();
         $hasVoices = !empty($voices);
@@ -357,20 +356,31 @@ class Admin
 
             <?php if (!$hasApiKey): ?>
                 <div class="notice notice-error inline" style="margin: 0 0 15px 0; padding: 10px;">
-                    <p style="margin: 0;"><strong>API Key Required:</strong> Please configure your Moknah API key in
-                        <a href="<?php echo esc_url(admin_url('admin.php?page=ats-moknah')); ?>">settings</a> first.</p>
+                    <p style="margin: 0;">
+                        <strong><?php esc_html_e('API Key Required:', 'ats-moknah'); ?></strong>
+                        <?php printf(
+                            esc_html__('Please configure your Moknah API key in %s first.', 'ats-moknah'),
+                            '<a href="' . esc_url(admin_url('admin.php?page=ats-moknah')) . '">' . esc_html__('settings', 'ats-moknah') . '</a>'
+                        ); ?>
+                    </p>
                 </div>
             <?php elseif (!$hasVoices): ?>
                 <div class="notice notice-warning inline" style="margin: 0 0 15px 0; padding: 10px;">
-                    <p style="margin: 0;"><strong>No Voices Available:</strong> Unable to load voices. Please check your
-                        API key in
-                        <a href="<?php echo esc_url(admin_url('admin.php?page=ats-moknah')); ?>">settings</a>.</p>
+                    <p style="margin: 0;">
+                        <strong><?php esc_html_e('No Voices Available:', 'ats-moknah'); ?></strong>
+                        <?php printf(
+                            esc_html__('Unable to load voices. Please check your API key in %s.', 'ats-moknah'),
+                            '<a href="' . esc_url(admin_url('admin.php?page=ats-moknah')) . '">' . esc_html__('settings', 'ats-moknah') . '</a>'
+                        ); ?>
+                    </p>
                 </div>
             <?php endif; ?>
 
             <?php if ($status === 'failed' && $status_details): ?>
                 <div class="notice notice-error inline" style="margin: 0 0 15px 0; padding: 10px;">
-                    <p style="margin: 0;"><strong>Generation Failed:</strong> <?php echo esc_html($status_details); ?>
+                    <p style="margin: 0;">
+                        <strong><?php esc_html_e('Generation Failed:', 'ats-moknah'); ?></strong>
+                        <?php echo esc_html($status_details); ?>
                     </p>
                 </div>
             <?php endif; ?>
@@ -380,25 +390,25 @@ class Admin
                     <input type="checkbox" name="ats_moknah_enabled"
                            value="1" <?php checked($enabled); ?> <?php disabled(!$hasApiKey || !$hasVoices); ?>>
                     <span class="ats-toggle-slider"></span>
-                    <span class="ats-toggle-label">Enable Text-to-Speech</span>
+                    <span class="ats-toggle-label"><?php esc_html_e('Enable Text-to-Speech', 'ats-moknah'); ?></span>
                 </label>
                 <br>
                 <label class="ats-toggle">
                     <input type="checkbox" name="ats_moknah_preprocessing"
                            value="1" <?php checked($preprocessing); ?> <?php disabled(!$hasApiKey || !$hasVoices); ?>>
                     <span class="ats-toggle-slider"></span>
-                    <span class="ats-toggle-label">Enable AI Preprocessing</span>
+                    <span class="ats-toggle-label"><?php esc_html_e('Enable AI Preprocessing', 'ats-moknah'); ?></span>
                 </label>
             </div>
 
             <div class="ats-meta-row">
                 <label class="ats-label">
-                    <span class="ats-label-text">Voice</span>
+                    <span class="ats-label-text"><?php esc_html_e('Voice', 'ats-moknah'); ?></span>
                     <select name="ats_moknah_voice_id" id="ats-voice-select"
                             class="ats-select" <?php disabled(!$hasVoices); ?>>
                         <?php if ($hasVoices): ?>
                             <option value="" disabled selected>
-                                Select a voice
+                                <?php esc_html_e('Select a voice', 'ats-moknah'); ?>
                             </option>
                             <?php foreach ($voices as $id => $info): ?>
                                 <option value="<?php echo esc_attr($id); ?>"
@@ -408,7 +418,7 @@ class Admin
                                 </option>
                             <?php endforeach; ?>
                         <?php else: ?>
-                            <option value="">No voices available</option>
+                            <option value=""><?php esc_html_e('No voices available', 'ats-moknah'); ?></option>
                         <?php endif; ?>
                     </select>
                 </label>
@@ -417,7 +427,7 @@ class Admin
             <?php if ($hasVoices && isset($voices[$current])): ?>
                 <div class="ats-meta-row" id="ats-voice-sample">
                     <label class="ats-label">
-                        <span class="ats-label-text">Voice Sample</span>
+                        <span class="ats-label-text"><?php esc_html_e('Voice Sample', 'ats-moknah'); ?></span>
                         <div class="ats-audio-wrapper">
                             <audio id="ats-sample-audio" controls
                                    src="<?php echo esc_url($voices[$current]['sample'] ?? ''); ?>"></audio>
@@ -429,7 +439,7 @@ class Admin
             <?php if ($audioUrl): ?>
                 <div class="ats-meta-row">
                     <label class="ats-label">
-                        <span class="ats-label-text">Generated Audio</span>
+                        <span class="ats-label-text"><?php esc_html_e('Generated Audio', 'ats-moknah'); ?></span>
                         <div class="ats-audio-wrapper">
                             <audio controls src="<?php echo esc_url($audioUrl); ?>"></audio>
                         </div>
@@ -439,7 +449,7 @@ class Admin
 
             <?php if ($status): ?>
                 <div class="ats-meta-row">
-                    <span class="ats-label-text">Status</span>
+                    <span class="ats-label-text"><?php esc_html_e('Status', 'ats-moknah'); ?></span>
                     <div class="ats-status-badge ats-status-<?php echo esc_attr(strtolower(str_replace(' ', '-', $status))); ?>">
                         <span class="dashicons dashicons-<?php
                         echo $status === 'failed' ? 'warning' : ($audioUrl ? 'yes-alt' : 'clock');
@@ -485,22 +495,24 @@ class Admin
         $hasVoices = !empty($voices);
 
         if (isset($_GET['settings-updated']) && $_GET['settings-updated'] === 'true') {
-            echo '<div class="notice notice-success is-dismissible"><p>Settings saved successfully.</p></div>';
+            echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Settings saved successfully.', 'ats-moknah') . '</p></div>';
         }
         ?>
         <div class="wrap ats-settings-wrap">
             <div class="ats-settings-header">
                 <h1>
-                    <img src="<?php echo esc_url( plugin_dir_url(__FILE__) . '../assets/favicon.ico' ); ?>" alt="Moknah Logo" class="ats-settings-logo">
-                    ATS Moknah Settings
+                    <img src="<?php echo esc_url( plugin_dir_url(__FILE__) . '../assets/favicon.ico' ); ?>" alt="<?php esc_attr_e('Moknah Logo', 'ats-moknah'); ?>" class="ats-settings-logo">
+                    <?php esc_html_e('ATS Moknah Settings', 'ats-moknah'); ?>
                 </h1>
-                <p class="description">Configure your Article to Speech settings and default preferences.</p>
+                <p class="description"><?php esc_html_e('Configure your Article to Speech settings and default preferences.', 'ats-moknah'); ?></p>
             </div>
 
             <?php if (!$hasVoices && get_option('ats_moknah_api_key')): ?>
                 <div class="notice notice-warning">
-                    <p><strong>Warning:</strong> Unable to load voices from Moknah API. Please verify your API key is
-                        correct and has the necessary permissions.</p>
+                    <p>
+                        <strong><?php esc_html_e('Warning:', 'ats-moknah'); ?></strong>
+                        <?php esc_html_e('Unable to load voices from Moknah API. Please verify your API key is correct and has the necessary permissions.', 'ats-moknah'); ?>
+                    </p>
                 </div>
             <?php endif; ?>
 
@@ -512,26 +524,26 @@ class Admin
                     <div class="ats-settings-card">
                         <h2 class="ats-card-title">
                             <span class="dashicons dashicons-admin-network"></span>
-                            API Configuration
+                            <?php esc_html_e('API Configuration', 'ats-moknah'); ?>
                         </h2>
 
                         <div class="ats-settings-row">
                             <label class="ats-settings-label">
-                                <span class="ats-settings-label-text">Moknah API Key</span>
-                                <span class="ats-settings-label-desc">Enter your Moknah API key to enable text-to-speech conversion.</span>
+                                <span class="ats-settings-label-text"><?php esc_html_e('Moknah API Key', 'ats-moknah'); ?></span>
+                                <span class="ats-settings-label-desc"><?php esc_html_e('Enter your Moknah API key to enable text-to-speech conversion.', 'ats-moknah'); ?></span>
                             </label>
                             <div class="ats-settings-field">
                                 <input type="password"
                                        name="ats_moknah_api_key"
                                        value="<?php echo esc_attr(get_option('ats_moknah_api_key')); ?>"
                                        class="ats-input ats-input-large"
-                                       placeholder="Enter your API key" required>
+                                       placeholder="<?php esc_attr_e('Enter your API key', 'ats-moknah'); ?>" required>
                             </div>
                         </div>
                         <div class="ats-settings-row">
                             <label class="ats-settings-label">
-                                <span class="ats-settings-label-text">Article Selector</span>
-                                <span class="ats-settings-label-desc">Enter the innermost CSS selector that directly contains the post title and body.</span>
+                                <span class="ats-settings-label-text"><?php esc_html_e('Article Selector', 'ats-moknah'); ?></span>
+                                <span class="ats-settings-label-desc"><?php esc_html_e('Enter the innermost CSS selector that directly contains the post title and body.', 'ats-moknah'); ?></span>
                             </label>
                             <div class="ats-settings-field">
                                 <input type="text"
@@ -543,9 +555,9 @@ class Admin
                         </div>
                         <div class="ats-settings-row">
                             <label class="ats-settings-label">
-                                <span class="ats-settings-label-text">Skipped Selectors</span>
-                                <span class="ats-settings-label-desc">A list of CSS selectors inside "Article Selector" which you plan to ignore them from being highlighted </span>
-                                <span class="ats-settings-label-note">'.highlighter-skip' Selector is included by default</span>
+                                <span class="ats-settings-label-text"><?php esc_html_e('Skipped Selectors', 'ats-moknah'); ?></span>
+                                <span class="ats-settings-label-desc"><?php esc_html_e('A list of CSS selectors inside "Article Selector" which you plan to ignore them from being highlighted', 'ats-moknah'); ?></span>
+                                <span class="ats-settings-label-note"><?php esc_html_e('\'.highlighter-skip\' Selector is included by default', 'ats-moknah'); ?></span>
                             </label>
                             <div class="ats-settings-field">
                                 <input type="text"
@@ -557,16 +569,16 @@ class Admin
                         </div>
                         <div class="ats-settings-row">
                             <label class="ats-settings-label">
-                                <span class="ats-settings-label-text">Callback url <span
-                                            class="ats-settings-label-tag">( optional )</span></span>
-                                <span class="ats-settings-label-desc">Enter the callback URL to receive audio file notifications.</span>
+                                <span class="ats-settings-label-text"><?php esc_html_e('Callback url', 'ats-moknah'); ?> <span
+                                            class="ats-settings-label-tag"><?php esc_html_e('( optional )', 'ats-moknah'); ?></span></span>
+                                <span class="ats-settings-label-desc"><?php esc_html_e('Enter the callback URL to receive audio file notifications.', 'ats-moknah'); ?></span>
                             </label>
                             <div class="ats-settings-field">
                                 <input type="url"
                                        name="ats_moknah_callback_url"
                                        value="<?php echo esc_attr(get_option('ats_moknah_callback_url')); ?>"
                                        class="ats-input ats-input-large"
-                                       placeholder="Default: <?php echo esc_attr(rest_url('ats-moknah/v1/callback')); ?>">
+                                       placeholder="<?php printf(esc_attr__('Default: %s', 'ats-moknah'), esc_attr(rest_url('ats-moknah/v1/callback'))); ?>">
                             </div>
                         </div>
                     </div>
@@ -574,20 +586,20 @@ class Admin
                     <div class="ats-settings-card">
                         <h2 class="ats-card-title">
                             <span class="dashicons dashicons-microphone"></span>
-                            Voice Settings
+                            <?php esc_html_e('Voice Settings', 'ats-moknah'); ?>
                         </h2>
 
                         <div class="ats-settings-row">
                             <label class="ats-settings-label">
-                                <span class="ats-settings-label-text">Default Voice</span>
-                                <span class="ats-settings-label-desc">Select the default voice for new articles.</span>
+                                <span class="ats-settings-label-text"><?php esc_html_e('Default Voice', 'ats-moknah'); ?></span>
+                                <span class="ats-settings-label-desc"><?php esc_html_e('Select the default voice for new articles.', 'ats-moknah'); ?></span>
                             </label>
                             <div class="ats-settings-field">
                                 <?php if ($hasVoices): ?>
                                     <select name="ats_moknah_voice_id" id="ats-settings-voice-select"
                                             class="ats-select">
                                         <option value="" disabled selected>
-                                            Select a voice
+                                            <?php esc_html_e('Select a voice', 'ats-moknah'); ?>
                                         </option>
                                         <?php
                                         $defaultVoice = get_option('ats_moknah_voice_id');
@@ -608,24 +620,24 @@ class Admin
                                         </div>
                                     <?php endif; ?>
                                 <?php else: ?>
-                                    <p class="description" style="color: #d63638;">Please save your API key first to
-                                        load available voices.</p>
+                                    <p class="description" style="color: #d63638;">
+                                        <?php esc_html_e('Please save your API key first to load available voices.', 'ats-moknah'); ?>
+                                    </p>
                                 <?php endif; ?>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Notification Settings Card -->
                     <div class="ats-settings-card">
                         <h2 class="ats-card-title">
                             <span class="dashicons dashicons-email"></span>
-                            Notification Settings
+                            <?php esc_html_e('Notification Settings', 'ats-moknah'); ?>
                         </h2>
 
                         <div class="ats-settings-row">
                             <label class="ats-settings-label">
-                                <span class="ats-settings-label-text">Email Notifications</span>
-                                <span class="ats-settings-label-desc">Choose who receives notifications when audio generation completes.</span>
+                                <span class="ats-settings-label-text"><?php esc_html_e('Email Notifications', 'ats-moknah'); ?></span>
+                                <span class="ats-settings-label-desc"><?php esc_html_e('Choose who receives notifications when audio generation completes.', 'ats-moknah'); ?></span>
                             </label>
                             <div class="ats-settings-field">
                                 <label class="ats-checkbox-label">
@@ -633,7 +645,7 @@ class Admin
                                            name="ats_moknah_notify_author"
                                            value="1"
                                         <?php checked(get_option('ats_moknah_notify_author', '0'), '1'); ?>>
-                                    <span>Notify post author when audio is ready</span>
+                                    <span><?php esc_html_e('Notify post author when audio is ready', 'ats-moknah'); ?></span>
                                 </label>
                                 <br>
                                 <label class="ats-checkbox-label" style="margin-top: 8px;">
@@ -641,7 +653,7 @@ class Admin
                                            name="ats_moknah_notify_admin"
                                            value="1"
                                         <?php checked(get_option('ats_moknah_notify_admin'), '0'); ?>>
-                                    <span>Notify site administrator</span>
+                                    <span><?php esc_html_e('Notify site administrator', 'ats-moknah'); ?></span>
                                 </label>
                                 <br>
                                 <label class="ats-checkbox-label" style="margin-top: 8px;">
@@ -649,24 +661,27 @@ class Admin
                                            name="ats_moknah_notify_failures"
                                            value="1"
                                         <?php checked(get_option('ats_moknah_notify_failures', '0'), '1'); ?>>
-                                    <span>Send notifications for failed generations</span>
+                                    <span><?php esc_html_e('Send notifications for failed generations', 'ats-moknah'); ?></span>
                                 </label>
                             </div>
                         </div>
 
                         <div class="ats-settings-row" style="border-top: 1px solid #dcdcde; padding-top: 20px; margin-top: 20px;">
                             <label class="ats-settings-label">
-                                <span class="ats-settings-label-text">Test Email Configuration</span>
-                                <span class="ats-settings-label-desc">Send a test email to verify your WordPress email setup is working correctly.</span>
+                                <span class="ats-settings-label-text"><?php esc_html_e('Test Email Configuration', 'ats-moknah'); ?></span>
+                                <span class="ats-settings-label-desc"><?php esc_html_e('Send a test email to verify your WordPress email setup is working correctly.', 'ats-moknah'); ?></span>
                             </label>
                             <div class="ats-settings-field">
                                 <button type="button" id="ats-test-email-btn" class="button button-secondary">
                                     <span class="dashicons dashicons-email-alt" style="margin-top: 3px;"></span>
-                                    Send Test Email
+                                    <?php esc_html_e('Send Test Email', 'ats-moknah'); ?>
                                 </button>
                                 <div id="ats-test-email-result" style="margin-top: 10px; display: none;"></div>
                                 <p class="description" style="margin-top: 10px;">
-                                    The test email will be sent to: <strong><?php echo esc_html(wp_get_current_user()->user_email); ?></strong>
+                                    <?php printf(
+                                        esc_html__('The test email will be sent to: %s', 'ats-moknah'),
+                                        '<strong>' . esc_html(wp_get_current_user()->user_email) . '</strong>'
+                                    ); ?>
                                 </p>
                             </div>
                         </div>
@@ -675,7 +690,7 @@ class Admin
                 </div>
 
                 <div class="ats-settings-footer">
-                    <?php submit_button('Save Settings', 'primary', 'submit', false); ?>
+                    <?php submit_button(__('Save Settings','ats-moknah'), 'primary', 'submit', false); ?>
                 </div>
             </form>
         </div>

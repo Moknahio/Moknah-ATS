@@ -1,0 +1,263 @@
+# Copyright (C) 2026 Moknah.io
+# This file is distributed under the GPLv2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: ATS Moknah 1.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/ats-moknah\n"
+"Last-Translator: <EMAIL@ADDRESS>\n"
+"Language-Team: Arabic\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-02-08T20:13:09+01:00\n"
+"PO-Revision-Date: 2026-02-08 22:15+0300\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: ats-moknah\n"
+"Language: ar\n"
+"Plural-Forms: nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
+"&& n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5);\n"
+
+
+msgid "Failed to load voices. Please check your API key and try again."
+msgstr "فشل تحميل الأصوات. يرجى التحقق من مفتاح API والمحاولة مرة أخرى."
+
+msgid "ATS Moknah"
+msgstr "ATS Moknah"
+
+msgid "ATS Moknah:"
+msgstr "ATS Moknah:"
+
+msgid "You do not have permission to test email settings."
+msgstr "ليس لديك صلاحية لاختبار إعدادات البريد الإلكتروني."
+
+msgid "Security verification failed. Please refresh the page and try again."
+msgstr "فشل التحقق الأمني. يرجى تحديث الصفحة والمحاولة مرة أخرى."
+
+msgid "[%s] Email Test - ATS Moknah"
+msgstr "[%s] اختبار البريد الإلكتروني - ATS Moknah"
+
+msgid ""
+"This is a test email from ATS Moknah plugin.\n\n"
+"Site: %s\n"
+"Site URL: %s\n"
+"Sent to: %s\n"
+"Sent at: %s\n\n"
+"If you received this email, your WordPress email configuration is working correctly.\n\n"
+"Email notifications will be sent when:\n"
+"• Audio generation completes successfully\n"
+"• Audio generation fails (if enabled)\n\n"
+"You can configure notification preferences in the ATS Moknah settings.\n\n"
+"---\n"
+"ATS Moknah Plugin Test Email"
+msgstr ""
+"هذا بريد إلكتروني تجريبي من إضافة ATS Moknah.\n\n"
+"الموقع: %s\n"
+"رابط الموقع: %s\n"
+"أُرسل إلى: %s\n"
+"تاريخ الإرسال: %s\n\n"
+"إذا وصلك هذا البريد، فهذا يعني أن إعدادات البريد في ووردبريس تعمل بشكل صحيح.\n\n"
+"سيتم إرسال الإشعارات في الحالات التالية:\n"
+"• عند اكتمال توليد الصوت بنجاح\n"
+"• عند فشل توليد الصوت (إذا كان مفعّلًا)\n\n"
+"يمكنك ضبط إعدادات الإشعارات من صفحة إعدادات ATS Moknah.\n\n"
+"---\n"
+"بريد اختبار إضافة ATS Moknah"
+
+msgid "Unknown error"
+msgstr "خطأ غير معروف"
+
+msgid "Failed to send test email. Error: %s. Please check your email configuration. %s"
+msgstr "فشل إرسال البريد التجريبي. الخطأ: %s. يرجى التحقق من إعدادات البريد الإلكتروني. %s"
+
+msgid "Test email sent successfully to %s. Please check your inbox (and spam folder)."
+msgstr "تم إرسال البريد التجريبي بنجاح إلى %s. يرجى التحقق من صندوق الوارد (وأيضًا مجلد الرسائل غير المرغوب فيها)."
+
+msgid "Your server may not be configured to send emails."
+msgstr "قد لا يكون الخادم مهيأً لإرسال البريد الإلكتروني."
+
+msgid "Try installing an SMTP plugin like \"WP Mail SMTP\" or \"Easy WP SMTP\"."
+msgstr "جرّب تثبيت إضافة SMTP مثل \"WP Mail SMTP\" أو \"Easy WP SMTP\"."
+
+msgid "Contact your hosting provider to verify email sending is enabled."
+msgstr "تواصل مع شركة الاستضافة للتأكد من أن إرسال البريد الإلكتروني مفعّل."
+
+msgid "You do not have permission to generate audio for posts."
+msgstr "ليس لديك صلاحية توليد الصوت للمقالات."
+
+msgid "Invalid post ID provided."
+msgstr "تم تمرير رقم مقال غير صالح."
+
+msgid "Post not found. It may have been deleted."
+msgstr "المقال غير موجود. قد يكون قد تم حذفه."
+
+msgid "Unable to load available voices. Please check your API key in settings."
+msgstr "تعذر تحميل الأصوات المتاحة. يرجى التحقق من مفتاح API في الإعدادات."
+
+msgid "Selected voice is not available. Please choose a different voice."
+msgstr "الصوت المحدد غير متاح. يرجى اختيار صوت آخر."
+
+msgid "Please enable Text-to-Speech before generating audio."
+msgstr "يرجى تفعيل تحويل النص إلى كلام قبل توليد الصوت."
+
+msgid "API key not configured. Please add your Moknah API key in settings."
+msgstr "مفتاح API غير مهيأ. يرجى إضافة مفتاح Moknah API في الإعدادات."
+
+msgid "Post content is empty. Please add content before generating audio."
+msgstr "محتوى المقال فارغ. يرجى إضافة محتوى قبل توليد الصوت."
+
+msgid "Post content is too short. Please add at least 50 characters of content."
+msgstr "محتوى المقال قصير جدًا. يرجى إضافة ما لا يقل عن 50 حرفًا."
+
+msgid "Audio generation started. Notifications to post author are disabled."
+msgstr "بدأ توليد الصوت. تم تعطيل الإشعارات لكاتب المقال."
+
+msgid "Audio generation started successfully. Notifications to post author are disabled."
+msgstr "تم بدء توليد الصوت بنجاح. إشعارات كاتب المقال معطلة."
+
+msgid "Audio generation started successfully. You will be notified when it's ready."
+msgstr "تم بدء توليد الصوت بنجاح. سيتم إشعارك عند الانتهاء."
+
+msgid "ATS Options"
+msgstr "خيارات ATS"
+
+msgid "API Key Required:"
+msgstr "مفتاح API مطلوب:"
+
+msgid "Please configure your Moknah API key in %s first."
+msgstr "يرجى إعداد مفتاح Moknah API في %s أولًا."
+
+msgid "settings"
+msgstr "الإعدادات"
+
+msgid "No Voices Available:"
+msgstr "لا توجد أصوات متاحة:"
+
+msgid "Generation Failed:"
+msgstr "فشل التوليد:"
+
+msgid "Enable Text-to-Speech"
+msgstr "تفعيل تحويل النص إلى كلام"
+
+msgid "Enable AI Preprocessing"
+msgstr "تفعيل المعالجة المسبقة بالذكاء الاصطناعي"
+
+msgid "Voice"
+msgstr "الصوت"
+
+msgid "Select a voice"
+msgstr "اختر صوتًا"
+
+msgid "No voices available"
+msgstr "لا توجد أصوات متاحة"
+
+msgid "Voice Sample"
+msgstr "عينة الصوت"
+
+msgid "Generated Audio"
+msgstr "الصوت المُولّد"
+
+msgid "Status"
+msgstr "الحالة"
+
+msgid "Generate Audio"
+msgstr "توليد الصوت"
+
+msgid "Regenerate Audio"
+msgstr "إعادة توليد الصوت"
+
+msgid "Settings saved successfully."
+msgstr "تم حفظ الإعدادات بنجاح."
+
+msgid "ATS Moknah Settings"
+msgstr "إعدادات ATS Moknah"
+
+msgid "Configure your Article to Speech settings and default preferences."
+msgstr "قم بضبط إعدادات تحويل المقال إلى صوت والتفضيلات الافتراضية."
+
+msgid "Warning:"
+msgstr "تحذير:"
+
+msgid "Unable to load voices from Moknah API. Please verify your API key is correct and has the necessary permissions."
+msgstr "تعذر تحميل الأصوات من واجهة Moknah API. يرجى التأكد من صحة مفتاح API وامتلاكه الصلاحيات اللازمة."
+
+msgid "API Configuration"
+msgstr "إعدادات API"
+
+msgid "Moknah API Key"
+msgstr "مفتاح Moknah API"
+
+msgid "Enter your Moknah API key to enable text-to-speech conversion."
+msgstr "أدخل مفتاح Moknah API لتفعيل تحويل النص إلى كلام."
+
+msgid "Enter your API key"
+msgstr "أدخل مفتاح API"
+
+msgid "Article Selector"
+msgstr "محدد المقال"
+
+msgid "Skipped Selectors"
+msgstr "المحددات المتجاهلة"
+
+msgid "Callback url"
+msgstr "رابط Callback"
+
+msgid "( optional )"
+msgstr "( اختياري )"
+
+msgid "Voice Settings"
+msgstr "إعدادات الصوت"
+
+msgid "Default Voice"
+msgstr "الصوت الافتراضي"
+
+msgid "Notification Settings"
+msgstr "إعدادات الإشعارات"
+
+msgid "Email Notifications"
+msgstr "إشعارات البريد الإلكتروني"
+
+msgid "Notify post author when audio is ready"
+msgstr "إشعار كاتب المقال عند جاهزية الصوت"
+
+msgid "Notify site administrator"
+msgstr "إشعار مدير الموقع"
+
+msgid "Send notifications for failed generations"
+msgstr "إرسال إشعارات عند فشل التوليد"
+
+msgid "Test Email Configuration"
+msgstr "اختبار إعدادات البريد الإلكتروني"
+
+msgid "Send Test Email"
+msgstr "إرسال بريد تجريبي"
+
+msgid "The test email will be sent to: %s"
+msgstr "سيتم إرسال البريد التجريبي إلى: %s"
+
+msgid "Save Settings"
+msgstr "حفظ الإعدادات"
+
+msgid "Listen to the article"
+msgstr "استمع إلى المقال هنا"
+
+msgid "Enter the innermost CSS selector that directly contains the post title and body."
+msgstr "أدخل محدد CSS الأعمق الذي يحتوي مباشرةً على عنوان المقال ومحتواه."
+
+msgid "A list of CSS selectors inside \"Article Selector\" which you plan to ignore them from being highlighted"
+msgstr "قائمة بمحددات CSS داخل \"محدد المقال\" التي تخطط لتجاهلها وعدم تمييزها."
+
+msgid "'.highlighter-skip' Selector is included by default"
+msgstr "المحدد '.highlighter-skip' مُضمَّن افتراضيًا."
+
+msgid "Enter the callback URL to receive audio file notifications."
+msgstr "أدخل رابط الاستدعاء (Callback URL) لاستلام إشعارات ملفات الصوت."
+
+msgid "Select the default voice for new articles."
+msgstr "اختر الصوت الافتراضي للمقالات الجديدة."
+
+
+msgid "Choose who receives notifications when audio generation completes."
+msgstr "اختر من يتلقى الإشعارات عند اكتمال إنشاء الصوت."
+
+msgid "Send a test email to verify your WordPress email setup is working correctly."
+msgstr "أرسل بريدًا تجريبيًا للتحقق من أن إعداد البريد في ووردبريس يعمل بشكل صحيح."

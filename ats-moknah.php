@@ -23,6 +23,11 @@ if (version_compare(PHP_VERSION, '7.4', '<')) {
 }
 
 
+add_action('plugins_loaded', function () {
+    load_plugin_textdomain('ats-moknah', false, dirname(plugin_basename(__FILE__)) . '/languages');
+});
+
+
 if (!defined('ABSPATH')) exit;
 
 $ats_moknah_autoload = plugin_dir_path(__FILE__) . 'vendor/autoload.php';

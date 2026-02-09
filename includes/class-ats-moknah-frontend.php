@@ -111,6 +111,7 @@ class Frontend {
         $template = file_get_contents(plugin_dir_path(__FILE__) . '../mk-mp-player-template.html');
         // Replace placeholder with dynamic URL
         $player_html = str_replace('{{audio_url}}', esc_url($audio_url), $template);
+        $player_html = str_replace('{{listen_to_article}}', __('Listen to the article','ats-moknah'), $player_html);
 
         // Insert after featured image
         if (preg_match('/(<span class="byline">.*?<\/span>)/i', $content, $matches)) {
