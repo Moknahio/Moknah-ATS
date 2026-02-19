@@ -19,6 +19,9 @@ class Frontend {
         $enabled = get_post_meta($post->ID, '_ats_moknah_enabled', true);
         if ($enabled !== '1') return;
 
+        $audio_url = get_post_meta($post->ID, '_ats_moknah_audio_url', true);
+        if (empty($audio_url)) return;
+
         wp_enqueue_style(
             'ats-mini-icons',
             plugin_dir_url(__FILE__) . '../assets/fontawesome/style.css',
@@ -97,6 +100,9 @@ class Frontend {
 
         $enabled = get_post_meta($post->ID, '_ats_moknah_enabled', true);
         if ($enabled !== '1') return $content;
+
+        $audio_url = get_post_meta($post->ID, '_ats_moknah_audio_url', true);
+        if (empty($audio_url)) return $content;
 
         $post_id = get_the_ID();
 

@@ -1,10 +1,12 @@
 <?php
+
 namespace ATS_Moknah;
 
 // Prevent direct file access
 if (!defined('ABSPATH')) exit;
 
-function ats_moknah_sanitize_checkbox($input) {
+function ats_moknah_sanitize_checkbox($input)
+{
     return ($input === '1') ? '1' : '0';
 }
 
@@ -159,7 +161,7 @@ class Admin
 
             // Capture potential PHP mail errors
             $phpmailer_error = '';
-            add_action('wp_mail_failed', function($wp_error) use (&$phpmailer_error) {
+            add_action('wp_mail_failed', function ($wp_error) use (&$phpmailer_error) {
                 $phpmailer_error = $wp_error->get_error_message();
             });
 
@@ -171,9 +173,10 @@ class Admin
                 // Provide helpful troubleshooting information
                 $troubleshooting = self::getEmailTroubleshooting();
 
+                /* translators: 1: Error details from PHPMailer, 2: Additional troubleshooting info */
                 throw new \Exception(
                     sprintf(
-                        __('Failed to send test email. Error: %s. Please check your email configuration. %s', 'ats-moknah'),
+                        __('Failed to send test email. Error: %1$s. Please check your email configuration. %2$s', 'ats-moknah'),
                         $error_details,
                         $troubleshooting
                     )
@@ -181,12 +184,14 @@ class Admin
             }
 
             wp_send_json_success([
+                /* translators: %s: Email address the test email was sent to */
                 'message' => sprintf(
                     __('Test email sent successfully to %s. Please check your inbox (and spam folder).', 'ats-moknah'),
                     $to
                 ),
-                'email' => $to
+                'email' => $to,
             ]);
+
 
         } catch (\Exception $e) {
             wp_send_json_error([
@@ -354,27 +359,34 @@ class Admin
 
         <div class="ats-moknah-meta-box">
 
-            <?php if (!$hasApiKey): ?>
+            <?php if (!$hasApiKey) : ?>
                 <div class="notice notice-error inline" style="margin: 0 0 15px 0; padding: 10px;">
                     <p style="margin: 0;">
                         <strong><?php esc_html_e('API Key Required:', 'ats-moknah'); ?></strong>
-                        <?php printf(
+                        <?php
+                        /* translators: %s: link to the settings page */
+                        printf(
                             esc_html__('Please configure your Moknah API key in %s first.', 'ats-moknah'),
                             '<a href="' . esc_url(admin_url('admin.php?page=ats-moknah')) . '">' . esc_html__('settings', 'ats-moknah') . '</a>'
-                        ); ?>
+                        );
+                        ?>
                     </p>
                 </div>
-            <?php elseif (!$hasVoices): ?>
+            <?php elseif (!$hasVoices) : ?>
                 <div class="notice notice-warning inline" style="margin: 0 0 15px 0; padding: 10px;">
                     <p style="margin: 0;">
                         <strong><?php esc_html_e('No Voices Available:', 'ats-moknah'); ?></strong>
-                        <?php printf(
+                        <?php
+                        /* translators: %s: link to the settings page */
+                        printf(
                             esc_html__('Unable to load voices. Please check your API key in %s.', 'ats-moknah'),
                             '<a href="' . esc_url(admin_url('admin.php?page=ats-moknah')) . '">' . esc_html__('settings', 'ats-moknah') . '</a>'
-                        ); ?>
+                        );
+                        ?>
                     </p>
                 </div>
             <?php endif; ?>
+
 
             <?php if ($status === 'failed' && $status_details): ?>
                 <div class="notice notice-error inline" style="margin: 0 0 15px 0; padding: 10px;">
@@ -494,14 +506,26 @@ class Admin
         $voices = self::getVoices();
         $hasVoices = !empty($voices);
 
-        if (isset($_GET['settings-updated']) && $_GET['settings-updated'] === 'true') {
-            echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Settings saved successfully.', 'ats-moknah') . '</p></div>';
+        if (
+            isset($_GET['settings-updated'], $_GET['_wpnonce']) &&
+            wp_verify_nonce(
+                sanitize_text_field(wp_unslash($_GET['_wpnonce'])),
+                'ats_moknah_settings_updated'
+            ) &&
+            'true' === sanitize_text_field(wp_unslash($_GET['settings-updated']))
+        ) {
+            echo '<div class="notice notice-success is-dismissible"><p>' .
+                esc_html__('Settings saved successfully.', 'ats-moknah') .
+                '</p></div>';
         }
+
+
         ?>
         <div class="wrap ats-settings-wrap">
             <div class="ats-settings-header">
                 <h1>
-                    <img src="<?php echo esc_url( plugin_dir_url(__FILE__) . '../assets/favicon.ico' ); ?>" alt="<?php esc_attr_e('Moknah Logo', 'ats-moknah'); ?>" class="ats-settings-logo">
+                    <img src="<?php echo esc_url(plugin_dir_url(__FILE__) . '../assets/favicon.ico'); ?>"
+                         alt="<?php esc_attr_e('Moknah Logo', 'ats-moknah'); ?>" class="ats-settings-logo">
                     <?php esc_html_e('ATS Moknah Settings', 'ats-moknah'); ?>
                 </h1>
                 <p class="description"><?php esc_html_e('Configure your Article to Speech settings and default preferences.', 'ats-moknah'); ?></p>
@@ -578,7 +602,19 @@ class Admin
                                        name="ats_moknah_callback_url"
                                        value="<?php echo esc_attr(get_option('ats_moknah_callback_url')); ?>"
                                        class="ats-input ats-input-large"
-                                       placeholder="<?php printf(esc_attr__('Default: %s', 'ats-moknah'), esc_attr(rest_url('ats-moknah/v1/callback'))); ?>">
+                                    <?php
+                                    /* translators: %s: Default callback URL */
+                                    printf(
+                                        'placeholder="%s"',
+                                        esc_attr(
+                                            sprintf(
+                                                __('Default: %s', 'ats-moknah'),
+                                                rest_url('ats-moknah/v1/callback')
+                                            )
+                                        )
+                                    );
+                                    ?>
+                                >
                             </div>
                         </div>
                     </div>
@@ -666,7 +702,8 @@ class Admin
                             </div>
                         </div>
 
-                        <div class="ats-settings-row" style="border-top: 1px solid #dcdcde; padding-top: 20px; margin-top: 20px;">
+                        <div class="ats-settings-row"
+                             style="border-top: 1px solid #dcdcde; padding-top: 20px; margin-top: 20px;">
                             <label class="ats-settings-label">
                                 <span class="ats-settings-label-text"><?php esc_html_e('Test Email Configuration', 'ats-moknah'); ?></span>
                                 <span class="ats-settings-label-desc"><?php esc_html_e('Send a test email to verify your WordPress email setup is working correctly.', 'ats-moknah'); ?></span>
@@ -678,10 +715,15 @@ class Admin
                                 </button>
                                 <div id="ats-test-email-result" style="margin-top: 10px; display: none;"></div>
                                 <p class="description" style="margin-top: 10px;">
-                                    <?php printf(
+                                    <?php
+                                    /* translators: %s: Email address the test email will be sent to */
+                                    printf(
                                         esc_html__('The test email will be sent to: %s', 'ats-moknah'),
                                         '<strong>' . esc_html(wp_get_current_user()->user_email) . '</strong>'
-                                    ); ?>
+                                    );
+                                    ?>
+
+
                                 </p>
                             </div>
                         </div>
@@ -690,7 +732,7 @@ class Admin
                 </div>
 
                 <div class="ats-settings-footer">
-                    <?php submit_button(__('Save Settings','ats-moknah'), 'primary', 'submit', false); ?>
+                    <?php submit_button(__('Save Settings', 'ats-moknah'), 'primary', 'submit', false); ?>
                 </div>
             </form>
         </div>
@@ -718,6 +760,25 @@ class Admin
         </script>
     <?php endif; ?>
         <?php
+    }
+
+    private static function normalize_punctuation($text)
+    {
+        // Split by line breaks
+        $lines = preg_split('/\r\n|\r|\n/', $text);
+
+        foreach ($lines as &$line) {
+            $line = trim($line);
+
+            if ($line === '') continue;
+
+            // If line does NOT end with punctuation
+            if (!preg_match('/[.!?…؟!]$/u', $line)) {
+                $line .= '.';
+            }
+        }
+
+        return implode("\n", $lines);
     }
 
     public static function generateTTS($post_id)
@@ -767,16 +828,25 @@ class Admin
             );
 
             $content = $post->post_title . "\n\n" . $post->post_content;
+
             $content = strip_shortcodes($content);
-            $content = wp_strip_all_tags($content);
 
             $skip_phrases = ['Generated by Moknah.io'];
             foreach ($skip_phrases as $skip) {
                 $content = str_replace($skip, '', $content);
             }
 
+            $content = preg_replace('/<\/(p|h[1-6]|li|div)>/i', "\n", $content);
+
+            $content = wp_strip_all_tags($content);
+
             $content = html_entity_decode($content, ENT_QUOTES, 'UTF-8');
+
+            $content = preg_replace('/[ \t]+/', ' ', $content);
+            $content = preg_replace('/\n+/', "\n", $content);
             $content = trim($content);
+
+            $content = self::normalize_punctuation($content);
 
             if (empty($content)) {
                 throw new \Exception('Post content is empty after processing. Please add content to your post.');
@@ -804,26 +874,30 @@ class Admin
 
 
         } catch (\Exception $e) {
-            $error_message = $e->getMessage();
+            $raw_message = $e->getMessage();
 
-            if (strpos($error_message, 'API key') !== false || strpos($error_message, 'Unauthorized') !== false) {
-                $error_message = 'API authentication failed. Please check your API key in settings.';
-            } elseif (strpos($error_message, 'cURL') !== false || strpos($error_message, 'Connection') !== false) {
-                $error_message = 'Unable to connect to Moknah API. Please check your internet connection and try again.';
-            } elseif (strpos($error_message, 'timeout') !== false) {
-                $error_message = 'Request timed out. The Moknah API may be experiencing issues. Please try again later.';
+            if (strpos($raw_message, 'API key') !== false || strpos($raw_message, 'Unauthorized') !== false) {
+                $error_message = __('API authentication failed. Please check your API key in settings.', 'ats-moknah');
+            } elseif (strpos($raw_message, 'cURL') !== false || strpos($raw_message, 'Connection') !== false) {
+                $error_message = __('Unable to connect to Moknah API. Please check your internet connection and try again.', 'ats-moknah');
+            } elseif (strpos($raw_message, 'timeout') !== false) {
+                $error_message = __('Request timed out. The Moknah API may be experiencing issues. Please try again later.', 'ats-moknah');
+            } else {
+                // Fallback – generic safe message
+                $error_message = __('An unexpected error occurred while processing the request.', 'ats-moknah');
             }
 
             update_post_meta($post_id, '_ats_moknah_status', 'failed');
             update_post_meta($post_id, '_ats_moknah_status_details', $error_message);
             delete_post_meta($post_id, '_ats_moknah_processing');
 
-
+            // Re-throw a sanitized, user-safe message
             throw new \Exception($error_message);
 
         } finally {
             delete_post_meta($post_id, '_ats_moknah_processing');
         }
+
     }
 }
 

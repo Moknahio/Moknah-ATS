@@ -41,7 +41,14 @@ class MoknahClient {
         });
 
         $nodes = $crawler->filter($selector);
-        if (!$nodes->count()) throw new \Exception("No elements found for selector: $selector");
+        if (!$nodes->count())
+            throw new \Exception(
+                sprintf(
+                    'No elements found for selector: %s',
+                    sanitize_text_field( $selector )
+                )
+            );
+
 
         $text = '';
         foreach ($nodes as $domNode) {
@@ -94,8 +101,17 @@ class MoknahClient {
             ]);
             return (string)$response->getBody();
         } catch (RequestException $e) {
-            $msg = $e->hasResponse() ? $e->getResponse()->getBody()->getContents() : $e->getMessage();
-            throw new \Exception("Moknah API request failed: $msg");
+            $msg = $e->hasResponse()
+                ? wp_strip_all_tags( (string) $e->getResponse()->getBody()->getContents() )
+                : $e->getMessage();
+
+            throw new \Exception(
+                sprintf(
+                    'Moknah API request failed: %s',
+                    sanitize_text_field( $msg )
+                )
+            );
+
         }
     }
 }

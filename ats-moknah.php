@@ -23,9 +23,15 @@ if (version_compare(PHP_VERSION, '7.4', '<')) {
 }
 
 
+// phpcs:ignore PluginCheck.CodeAnalysis.DiscouragedFunctions.load_plugin_textdomainFound
 add_action('plugins_loaded', function () {
-    load_plugin_textdomain('ats-moknah', false, dirname(plugin_basename(__FILE__)) . '/languages');
+    load_plugin_textdomain(
+        'ats-moknah',
+        false,
+        dirname(plugin_basename(__FILE__)) . '/languages'
+    );
 });
+
 
 
 if (!defined('ABSPATH')) exit;
