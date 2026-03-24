@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="abb78b48-2399-4ae3-b154-c9288a037fdb" name="Changes" comment="Improve TTS content preprocessing and prevent frontend changes when no audio exists&#10;&#10;- Prevent all frontend modifications (CSS, JS, audio player injection)&#10;  if `_ats_moknah_audio_url` is missing or empty.&#10;- Ensure `the_content` filter always returns original content when&#10;  audio is not available (fixes hidden article body issue).&#10;- Remove fallback default audio URL to avoid unintended player rendering.&#10;- Refactor TTS content preprocessing pipeline:&#10;  - Strip shortcodes before processing&#10;  - Remove unwanted phrases before punctuation normalization&#10;  - Convert block-level HTML tags (p, h1–h6, li, div, br) to line breaks&#10;  - Strip remaining HTML safely&#10;  - Decode HTML entities once&#10;  - Normalize whitespace and collapse extra line breaks&#10;  - Add sentence-ending punctuation to lines missing it&#10;- Improve punctuation normalization to avoid over-processing short or numeric-only lines.&#10;- Remove redundant `_ats_moknah_processing` cleanup in catch block&#10;  (handled centrally in finally).&#10;- Minor code cleanup and structural improvements for better maintainability." />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ComposerSettings" synchronizationState="SYNCHRONIZE">
+    <pharConfigPath>$PROJECT_DIR$/composer.json</pharConfigPath>
+    <execution />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="CSS File" />
+        <option value="HTML File" />
+        <option value="JavaScript File" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="main" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="PhpWorkspaceProjectConfiguration" interpreter_name="PHP">
+    <include_path>
+      <path value="$PROJECT_DIR$/vendor/guzzlehttp/psr7" />
+      <path value="$PROJECT_DIR$/vendor/symfony/deprecation-contracts" />
+      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-mbstring" />
+      <path value="$PROJECT_DIR$/vendor/ralouphie/getallheaders" />
+      <path value="$PROJECT_DIR$/vendor/symfony/dom-crawler" />
+      <path value="$PROJECT_DIR$/vendor/guzzlehttp/promises" />
+      <path value="$PROJECT_DIR$/vendor/psr/http-factory" />
+      <path value="$PROJECT_DIR$/vendor/psr/http-client" />
+      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-ctype" />
+      <path value="$PROJECT_DIR$/vendor/symfony/css-selector" />
+      <path value="$PROJECT_DIR$/vendor/psr/http-message" />
+      <path value="$PROJECT_DIR$/vendor/guzzlehttp/guzzle" />
+      <path value="$PROJECT_DIR$/vendor/composer" />
+      <path value="$PROJECT_DIR$/vendor/masterminds/html5" />
+    </include_path>
+  </component>
+  <component name="ProblemsViewState">
+    <option name="autoscrollToSource" value="true" />
+  </component>
+  <component name="ProjectId" id="38kvCs4DKNus1BKUE2yCsJmhNq5" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "DefaultHtmlFileTemplate": "HTML File",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "true",
+    "WebServerToolWindowPanel.toolwindow.highlight.mappings": "true",
+    "WebServerToolWindowPanel.toolwindow.highlight.symlinks": "true",
+    "WebServerToolWindowPanel.toolwindow.show.date": "false",
+    "WebServerToolWindowPanel.toolwindow.show.permissions": "false",
+    "WebServerToolWindowPanel.toolwindow.show.size": "false",
+    "git-widget-placeholder": "master",
+    "last_opened_file_path": "C:/wamp64/www/wordpress/wp-content/plugins/ats-moknah",
+    "list.type.of.created.stylesheet": "CSS",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "project.propVCSSupport.DirectoryMappings",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\wamp64\www\wordpress\wp-content\plugins\ats-moknah" />
+      <recent name="C:\wamp64\www\wordpress\wp-content\plugins\ats-moknah\assets" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\wamp64\www\wordpress\wp-content\plugins\ats-moknah" />
+      <recent name="C:\wamp64\www\wordpress\wp-content\plugins\ats-moknah\languages" />
+      <recent name="C:\wamp64\www\wordpress\wp-content\plugins\ats-moknah\assets\fontawesome" />
+    </key>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="SvnConfiguration">
+    <configuration>C:\Users\hesha\AppData\Roaming\Subversion</configuration>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="abb78b48-2399-4ae3-b154-c9288a037fdb" name="Changes" comment="" />
+      <created>1769356258592</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1769356258592</updated>
+      <workItem from="1769356259693" duration="7978000" />
+      <workItem from="1769431621422" duration="6106000" />
+      <workItem from="1769519681439" duration="8669000" />
+      <workItem from="1769612266498" duration="5955000" />
+      <workItem from="1769697097280" duration="6956000" />
+      <workItem from="1769774669945" duration="2401000" />
+      <workItem from="1769875322274" duration="5237000" />
+      <workItem from="1769938099190" duration="13198000" />
+      <workItem from="1770034655773" duration="15173000" />
+      <workItem from="1770117473190" duration="19889000" />
+      <workItem from="1770207979972" duration="5140000" />
+      <workItem from="1770479139906" duration="1305000" />
+      <workItem from="1770489431396" duration="1917000" />
+      <workItem from="1770549253426" duration="2489000" />
+      <workItem from="1770576098911" duration="5341000" />
+      <workItem from="1770638995557" duration="7391000" />
+      <workItem from="1770811378137" duration="4662000" />
+      <workItem from="1770895876038" duration="4116000" />
+      <workItem from="1770926071443" duration="1749000" />
+      <workItem from="1771011626308" duration="3000" />
+      <workItem from="1771508468238" duration="2615000" />
+      <workItem from="1771679976216" duration="4672000" />
+      <workItem from="1771757408270" duration="3629000" />
+      <workItem from="1771850712644" duration="2197000" />
+      <workItem from="1772017360635" duration="8209000" />
+      <workItem from="1772107622424" duration="35000" />
+      <workItem from="1772133101203" duration="2551000" />
+      <workItem from="1772198109060" duration="1844000" />
+      <workItem from="1772218721691" duration="633000" />
+      <workItem from="1772542328146" duration="10011000" />
+      <workItem from="1772621378398" duration="12000" />
+      <workItem from="1772635348699" duration="5369000" />
+      <workItem from="1772711574483" duration="7335000" />
+      <workItem from="1772735484146" duration="14000" />
+      <workItem from="1772969499592" duration="1472000" />
+      <workItem from="1773052340491" duration="782000" />
+      <workItem from="1773061172402" duration="1177000" />
+      <workItem from="1773137663520" duration="758000" />
+      <workItem from="1773590215410" duration="597000" />
+      <workItem from="1773638400429" duration="6000" />
+      <workItem from="1773834314168" duration="378000" />
+      <workItem from="1774270485305" duration="2826000" />
+      <workItem from="1774353165240" duration="6459000" />
+    </task>
+    <task id="LOCAL-00001" summary="First Polished Version">
+      <option name="closed" value="true" />
+      <created>1770118364958</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1770118364958</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Enhance audio player dark mode colors for links&#10;Update README.md&#10;Add readme.txt for WordPress plugin repository">
+      <option name="closed" value="true" />
+      <created>1770128594716</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1770128594716</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Security enhancement for callback">
+      <option name="closed" value="true" />
+      <created>1770141733140</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1770141733140</updated>
+    </task>
+    <task id="LOCAL-00004" summary="- Minimize outsource libraries usage&#10;- Enhance security&#10;- Fixed critical issues.&#10;- Some fixes to follow WordPress standard rules.">
+      <option name="closed" value="true" />
+      <created>1770235309503</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1770235309503</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Fixed Save Settings Error">
+      <option name="closed" value="true" />
+      <created>1770480379715</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1770480379715</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Added Arabic Translation">
+      <option name="closed" value="true" />
+      <created>1770645301223</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1770645301223</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Improve TTS content preprocessing and prevent frontend changes when no audio exists&#10;&#10;- Prevent all frontend modifications (CSS, JS, audio player injection)&#10;  if `_ats_moknah_audio_url` is missing or empty.&#10;- Ensure `the_content` filter always returns original content when&#10;  audio is not available (fixes hidden article body issue).&#10;- Remove fallback default audio URL to avoid unintended player rendering.&#10;- Refactor TTS content preprocessing pipeline:&#10;  - Strip shortcodes before processing&#10;  - Remove unwanted phrases before punctuation normalization&#10;  - Convert block-level HTML tags (p, h1–h6, li, div, br) to line breaks&#10;  - Strip remaining HTML safely&#10;  - Decode HTML entities once&#10;  - Normalize whitespace and collapse extra line breaks&#10;  - Add sentence-ending punctuation to lines missing it&#10;- Improve punctuation normalization to avoid over-processing short or numeric-only lines.&#10;- Remove redundant `_ats_moknah_processing` cleanup in catch block&#10;  (handled centrally in finally).&#10;- Minor code cleanup and structural improvements for better maintainability.">
+      <option name="closed" value="true" />
+      <created>1771510532313</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1771510532313</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="LOCAL_CHANGES_DETAILS_PREVIEW_SHOWN" value="false" />
+    <ignored-roots>
+      <path value="$PROJECT_DIR$" />
+    </ignored-roots>
+    <MESSAGE value="First Polished Version" />
+    <MESSAGE value="Enhance audio player dark mode colors for links&#10;Update README.md&#10;Add readme.txt for WordPress plugin repository" />
+    <MESSAGE value="Security enhancement for callback" />
+    <MESSAGE value="- Minimize outsource libraries usage&#10;- Enhance security&#10;- Fixed critical issues.&#10;- Some fixes to follow WordPress standard rules." />
+    <MESSAGE value="Fixed Save Settings Error" />
+    <MESSAGE value="Added Arabic Translation" />
+    <MESSAGE value="Improve TTS content preprocessing and prevent frontend changes when no audio exists&#10;&#10;- Prevent all frontend modifications (CSS, JS, audio player injection)&#10;  if `_ats_moknah_audio_url` is missing or empty.&#10;- Ensure `the_content` filter always returns original content when&#10;  audio is not available (fixes hidden article body issue).&#10;- Remove fallback default audio URL to avoid unintended player rendering.&#10;- Refactor TTS content preprocessing pipeline:&#10;  - Strip shortcodes before processing&#10;  - Remove unwanted phrases before punctuation normalization&#10;  - Convert block-level HTML tags (p, h1–h6, li, div, br) to line breaks&#10;  - Strip remaining HTML safely&#10;  - Decode HTML entities once&#10;  - Normalize whitespace and collapse extra line breaks&#10;  - Add sentence-ending punctuation to lines missing it&#10;- Improve punctuation normalization to avoid over-processing short or numeric-only lines.&#10;- Remove redundant `_ats_moknah_processing` cleanup in catch block&#10;  (handled centrally in finally).&#10;- Minor code cleanup and structural improvements for better maintainability." />
+    <option name="LAST_COMMIT_MESSAGE" value="Improve TTS content preprocessing and prevent frontend changes when no audio exists&#10;&#10;- Prevent all frontend modifications (CSS, JS, audio player injection)&#10;  if `_ats_moknah_audio_url` is missing or empty.&#10;- Ensure `the_content` filter always returns original content when&#10;  audio is not available (fixes hidden article body issue).&#10;- Remove fallback default audio URL to avoid unintended player rendering.&#10;- Refactor TTS content preprocessing pipeline:&#10;  - Strip shortcodes before processing&#10;  - Remove unwanted phrases before punctuation normalization&#10;  - Convert block-level HTML tags (p, h1–h6, li, div, br) to line breaks&#10;  - Strip remaining HTML safely&#10;  - Decode HTML entities once&#10;  - Normalize whitespace and collapse extra line breaks&#10;  - Add sentence-ending punctuation to lines missing it&#10;- Improve punctuation normalization to avoid over-processing short or numeric-only lines.&#10;- Remove redundant `_ats_moknah_processing` cleanup in catch block&#10;  (handled centrally in finally).&#10;- Minor code cleanup and structural improvements for better maintainability." />
+  </component>
+  <component name="WordPressConfiguration" enabled="true">
+    <wordpressPath>C:\wamp64\www\wordpress</wordpressPath>
+  </component>
+</project>
