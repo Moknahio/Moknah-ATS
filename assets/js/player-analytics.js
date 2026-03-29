@@ -2,6 +2,8 @@
 	const cfg = window.atsMoknahAnalytics;
 	if (!cfg || !cfg.postId || !cfg.restUrl) return;
 
+	const HEARTBEAT_SECONDS = 10;
+	const bound = new WeakSet();
 	let impressionSent = false;
 
 	const send = (event, listenSeconds = 0) => {
@@ -14,66 +16,92 @@
 			body: JSON.stringify({
 				post_id: cfg.postId,
 				event,
-				listen_seconds: listenSeconds
+				listen_seconds: Math.max(0, Math.round(listenSeconds))
 			})
 		}).catch(() => {});
 	};
 
 	const bindPlayer = (player) => {
-		if (!player || player.dataset.atsBound) return;
-		player.dataset.atsBound = '1';
+		if (!player || bound.has(player)) return;
+		bound.add(player);
 
 		if (!impressionSent) {
 			impressionSent = true;
 			send('impression');
 		}
 
-		let lastTime = 0;
+		let lastTime = player.currentTime || 0;
 		let accumulated = 0;
-		let completed = false;
+		let completedForThisPlay = false;
+		let heartbeatTimer = null;
 
-		player.addEventListener('play', () => send('play'), { passive: true });
+		const flush = () => {
+			if (accumulated > 0) {
+				send('heartbeat', accumulated);
+				accumulated = 0;
+			}
+		};
+
+		const startHeartbeat = () => {
+			if (heartbeatTimer) return;
+			heartbeatTimer = setInterval(flush, HEARTBEAT_SECONDS * 1000);
+		};
+
+		const stopHeartbeat = () => {
+			if (heartbeatTimer) {
+				clearInterval(heartbeatTimer);
+				heartbeatTimer = null;
+			}
+		};
+
+		player.addEventListener('play', () => {
+			completedForThisPlay = false;
+			lastTime = player.currentTime || 0;
+			send('play');
+			startHeartbeat();
+		}, { passive: true });
 
 		player.addEventListener('timeupdate', () => {
 			const current = player.currentTime || 0;
-			if (current > lastTime) accumulated += current - lastTime;
+			if (current > lastTime) {
+				accumulated += current - lastTime;
+			}
 			lastTime = current;
 		}, { passive: true });
 
 		player.addEventListener('ended', () => {
-			if (!completed) {
-				completed = true;
-				send('complete', Math.round(accumulated));
-				accumulated = 0;
+			if (!completedForThisPlay) {
+				completedForThisPlay = true;
+				flush();
+				send('complete');
 			}
+			stopHeartbeat();
+			accumulated = 0;
 		}, { passive: true });
 
-		const flush = () => {
-			if (accumulated > 0) {
-				send('heartbeat', Math.round(accumulated));
-				accumulated = 0;
-			}
-		};
-		player.addEventListener('pause', flush, { passive: true });
+		player.addEventListener('pause', () => {
+			flush();
+			stopHeartbeat();
+		}, { passive: true });
+
 		window.addEventListener('beforeunload', flush);
 		document.addEventListener('visibilitychange', () => {
-			if (document.visibilityState === 'hidden') flush();
+			if (document.visibilityState === 'hidden') {
+				flush();
+				stopHeartbeat();
+			} else if (!player.paused) {
+				startHeartbeat();
+			}
 		});
 	};
 
-	// 1) Bind the audio element from the template (if present now)
-	if (cfg.audioSelector) {
-		document.querySelectorAll(cfg.audioSelector).forEach(bindPlayer);
-	} else {
-		document.querySelectorAll('audio').forEach(bindPlayer);
-	}
+	const selector = cfg.audioSelector || 'audio';
+	document.querySelectorAll(selector).forEach(bindPlayer);
 
-	// 2) Catch any audio that starts playing later (e.g., injected nodes)
 	document.addEventListener('play', (e) => {
 		if (e.target && e.target.tagName === 'AUDIO') bindPlayer(e.target);
 	}, true);
 
-	// 3) Observe DOM mutations to bind future audio elements
 	const observer = new MutationObserver((mutations) => {
 		mutations.forEach((m) => {
 			m.addedNodes.forEach((node) => {
@@ -88,18 +116,14 @@
 	});
 	observer.observe(document.documentElement, { childList: true, subtree: true });
 
-	// 4) Also listen to your custom play button to fire play immediately on click
 	if (cfg.playButtonSelector) {
 		document.addEventListener('click', (e) => {
 			const btn = e.target.closest(cfg.playButtonSelector);
 			if (!btn) return;
-			// If audio is not yet bound, bind and record play promptly
-			const player = cfg.audioSelector
-				? document.querySelector(cfg.audioSelector)
-				: document.querySelector('audio');
+			const player = document.querySelector(selector);
 			if (player) {
 				bindPlayer(player);
-				send('play');
+				player.play().catch(() => {});
 			}
 		}, true);
 	}

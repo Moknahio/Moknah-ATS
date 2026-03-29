@@ -1,20 +1,22 @@
 === ATS Moknah ===
 Contributors: moknah
-Tags: text-to-speech, tts, accessibility, audio, ai-voice
+Tags: text-to-speech, tts, accessibility, audio, ai-voice, analytics
 Requires at least: 5.8
-Tested up to: 6.9
+Tested up to: 6.9.4
 Requires PHP: 7.4
-Stable tag: 1.0
+Stable tag: 1.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Convert WordPress articles into engaging AI-powered speech with text highlighting using 95+ voices in multiple languages and Arabic dialects.
+Convert WordPress articles into engaging AI-powered speech with text highlighting and track listener engagement with advanced audio analytics.
 
 == Description ==
 
 ATS Moknah (Article to Speech) transforms your written content into high-quality AI voice narration using the Moknah TTS API. Each post can be converted to speech with synchronized text highlighting, providing enhanced accessibility and a better listening experience for your readers.
 
 With **over 95 different AI voices** supporting **multiple Arabic dialects** and **multiple languages**, you can deliver content that resonates with your diverse audience in their preferred voice and language.
+
+Now featuring a robust **Audio Analytics Dashboard**, you can track exactly how your audience is engaging with your generated audio directly from your WordPress admin panel.
 
 = Key Features =
 
@@ -23,6 +25,8 @@ With **over 95 different AI voices** supporting **multiple Arabic dialects** and
 * 🗣️ **Multiple Arabic Dialects** - Support for various Arabic regional dialects (Gulf, Egyptian, Levantine, Maghrebi, and more)
 * 🌐 **Multi-Language Support** - Generate speech in multiple languages
 * 📝 **Text Highlighting** - Synchronized text highlighting follows the audio
+* 📊 **Advanced Audio Analytics** - Track impressions, plays, completion rates, and listen times
+* 📈 **Exportable Reports** - Generate structured, business-ready CSV reports with date filtering
 * ⚙️ **Per-Post Control** - Enable/disable speech generation for individual posts
 * 🤖 **AI Preprocessing** - Clean and optimize text for better speech quality
 * 🔐 **Secure API Integration** - Uses the Moknah TTS API for reliable voice generation
@@ -36,6 +40,7 @@ With **over 95 different AI voices** supporting **multiple Arabic dialects** and
 3. Configure your settings and choose from 95+ voices
 4. Enable speech generation for individual posts
 5. Audio player automatically appears on the frontend
+6. Monitor listener engagement via the built-in Analytics dashboard
 
 = Perfect For =
 
@@ -58,6 +63,8 @@ Include your website URL and intended usage in your request.
 = Privacy & Data =
 
 This plugin sends post content to the Moknah TTS API to generate audio. No content is stored by ATS Moknah beyond what is required for audio generation.
+
+The included Analytics module solely tracks aggregated playback metrics (anonymous) via the WordPress REST API to evaluate content performance. It does not track personally identifiable information (PII).
 
 Please review [Moknah's privacy policy](https://moknah.io/en/privacy/) before using the service.
 
@@ -103,6 +110,10 @@ Yes, you need a Moknah API key to use this plugin. Contact sales@moknah.io to re
 = How much does the API cost? =
 
 Contact sales@moknah.io for pricing information and plans.
+
+= How does the Analytics tracking work? =
+
+The plugin securely tracks player events (impressions, plays, duration listened, and completions) via a rate-limited REST API endpoint. This ensures high tracking accuracy while maintaining optimal website performance.
 
 = What languages and dialects are supported? =
 
@@ -158,8 +169,16 @@ Audio generation time depends on article length and API load. You'll receive an 
 2. Post editor meta box - Enable speech generation per post
 3. Frontend audio player - Synchronized text highlighting
 4. Voice selection interface - Choose from 95+ AI voices
+5. Analytics dashboard - Track impressions, plays, completion rates, and listen times
 
 == Changelog ==
+
+= 1.1 =
+* Added comprehensive Audio Analytics Dashboard.
+* Added daily engagement tracking (Impressions, Plays, Completions, Listen Time).
+* Added structured Business CSV exports with custom date range filtering.
+* Refactored plugin architecture (OOP/PSR-4) for improved performance and WordPress standards compliance.
+* Enhanced UX/UI for settings and analytics with full RTL accessibility support.
 
 = 1.0 =
 * Initial release
@@ -175,6 +194,9 @@ Audio generation time depends on article length and API load. You'll receive an 
 * Frontend audio player integration
 
 == Upgrade Notice ==
+
+= 1.1 =
+Major update introducing the Audio Analytics Dashboard, CSV reporting, and a refactored optimized architecture.
 
 = 1.0 =
 Initial release of ATS Moknah - Article to Speech plugin.

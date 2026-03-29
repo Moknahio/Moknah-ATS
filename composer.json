@@ -6,6 +6,7 @@
     },
     "autoload": {
         "psr-4": {
+            "ATS_Moknah\\": "includes/",
             "Moknah\\": "src/"
         }
     }

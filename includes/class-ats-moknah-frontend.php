@@ -1,5 +1,4 @@
 <?php
-namespace ATS_Moknah;
 
 if (!defined('ABSPATH')) exit;
 
@@ -41,25 +40,25 @@ class Frontend {
         // Plugin CSS
         wp_enqueue_style(
             'mk-mp-d1',
-            plugin_dir_url(__FILE__) . '../assets/mk-mp-d1.css',
+            plugin_dir_url(__FILE__) . '../assets/css/mk-mp-d1.css',
             [],
-            filemtime(plugin_dir_path(__FILE__) . '../assets/mk-mp-d1.css')
+            filemtime(plugin_dir_path(__FILE__) . '../assets/css/mk-mp-d1.css')
         );
 
         // Scripts
         wp_enqueue_script(
             'moknah-highlighter',
-            plugin_dir_url(__FILE__) .'../assets/moknah-highlighter.js',
+            plugin_dir_url(__FILE__) . '../assets/js/moknah-highlighter.js',
             [],
-            filemtime(plugin_dir_path(__FILE__) . '../assets/moknah-highlighter.js'),
+            filemtime(plugin_dir_path(__FILE__) . '../assets/js/moknah-highlighter.js'),
             true
         );
 
         wp_enqueue_script(
             'mk-mp-d1',
-            plugin_dir_url(__FILE__) . '../assets/mk-mp-d1.js',
+            plugin_dir_url(__FILE__) . '../assets/js/mk-mp-d1.js',
             ['jquery'],
-            filemtime(plugin_dir_path(__FILE__) . '../assets/mk-mp-d1.js'),
+            filemtime(plugin_dir_path(__FILE__) . '../assets/js/mk-mp-d1.js'),
             true
         );
         $srt_url = get_post_meta($post->ID, '_ats_moknah_srt_url', true);
@@ -102,16 +101,16 @@ class Frontend {
         // Analytics tracker
         wp_enqueue_script(
             'ats-moknah-player-analytics',
-            plugin_dir_url(__FILE__) . '../assets/player-analytics.js',
+            plugin_dir_url(__FILE__) . '../assets/js/player-analytics.js',
             [],
-            filemtime(plugin_dir_path(__FILE__) . '../assets/player-analytics.js'),
+            filemtime(plugin_dir_path(__FILE__) . '../assets/js/player-analytics.js'),
             true
         );
 
         wp_localize_script('ats-moknah-player-analytics', 'atsMoknahAnalytics', [
             'restUrl' => esc_url_raw(rest_url('ats-moknah/v1/analytics')),
-            'nonce'   => wp_create_nonce('wp_rest'),
-            'postId'  => (int) $post->ID,
+            'nonce' => wp_create_nonce('wp_rest'),
+            'postId' => (int)$post->ID,
             'audioSelector' => '#mk-mp-d1-audio',
             'playButtonSelector' => '#mk-mp-d1-play-pause',
         ]);
@@ -135,7 +134,7 @@ class Frontend {
         $audio_url = get_post_meta($post_id, '_ats_moknah_audio_url', true);
 
         // Load template HTML
-        $template = file_get_contents(plugin_dir_path(__FILE__) . '../mk-mp-player-template.html');
+        $template = file_get_contents(plugin_dir_path(__FILE__) . '../templates/mk-mp-player-template.html');
         // Replace placeholder with dynamic URL
         $player_html = str_replace('{{audio_url}}', esc_url($audio_url), $template);
         $player_html = str_replace('{{listen_to_article}}', __('Listen to the article', 'ats-moknah'), $player_html);

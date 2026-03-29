@@ -47,8 +47,17 @@ class Admin
                 __('ATS Moknah', 'ats-moknah'),
                 'manage_options',
                 'ats-moknah',
-                [self::class, 'settingsPage'],
-                'dashicons-format-audio'
+                null,
+                'dashicons-format-audio',
+                100
+            );
+            add_submenu_page(
+                'ats-moknah',
+                __('Settings', 'ats-moknah'),
+                __('Settings', 'ats-moknah'),
+                'manage_options',
+                'ats-moknah',
+                [self::class, 'settingsPage']
             );
         });
         add_action('wp_ajax_ats_get_audio', [Callback::class, 'ajaxGetAudioUrl']);
@@ -151,7 +160,7 @@ class Admin
                 $started_at &&
                 (time() - (int)$started_at) < $timeout
             ) {
-                throw new \Exception(__('Audio generation is currently in progress or queued. Please wait.','ats-moknah'));
+                throw new \Exception(__('Audio generation is currently in progress or queued. Please wait.', 'ats-moknah'));
             }
 
 // If timeout passed → auto reset status
@@ -222,8 +231,8 @@ class Admin
     public static function enqueueAdminAssets($hook)
     {
         if ($hook === 'toplevel_page_ats-moknah') {
-            wp_enqueue_style('ats-moknah-admin', plugin_dir_url(__FILE__) . '../assets/admin.css', [], '1.0');
-            wp_enqueue_script('ats-moknah-settings', plugin_dir_url(__FILE__) . '../assets/settings.js', ['jquery'], '1.0', true);
+            wp_enqueue_style('ats-moknah-admin', plugin_dir_url(__FILE__) . '../assets/css/admin.css', [], '1.0');
+            wp_enqueue_script('ats-moknah-settings', plugin_dir_url(__FILE__) . '../assets/js/settings.js', ['jquery'], '1.0', true);
             wp_localize_script('ats-moknah-settings', 'atsMoknahSettings', [
                 'ajaxUrl' => esc_url(admin_url('admin-ajax.php')),
                 'nonce' => wp_create_nonce('ats_moknah_settings_nonce')
@@ -235,12 +244,12 @@ class Admin
             'nonce' => wp_create_nonce('ats_moknah_ajax'),
         ]);
 
-        wp_enqueue_style('ats-moknah-admin', plugin_dir_url(__FILE__) . '../assets/admin.css', [], '1.0');
+        wp_enqueue_style('ats-moknah-admin', plugin_dir_url(__FILE__) . '../assets/css/admin.css', [], '1.0');
 
         if ($hook === 'post.php' || $hook === 'post-new.php') {
             wp_enqueue_script(
                 'ats-moknah-admin',
-                plugin_dir_url(__FILE__) . '../assets/admin.js',
+                plugin_dir_url(__FILE__) . '../assets/js/admin.js',
                 ['jquery', 'wp-i18n'],
                 '1.0',
                 true
@@ -489,7 +498,7 @@ class Admin
         <div class="wrap ats-settings-wrap">
             <div class="ats-settings-header">
                 <h1>
-                    <img src="<?php echo esc_url(plugin_dir_url(__FILE__) . '../assets/favicon.ico'); ?>"
+                    <img src="<?php echo esc_url(plugin_dir_url(__FILE__) . '../assets/images/favicon.ico'); ?>"
                          alt="<?php esc_attr_e('Moknah Logo', 'ats-moknah'); ?>" class="ats-settings-logo">
                     <?php esc_html_e('ATS Moknah Settings', 'ats-moknah'); ?>
                 </h1>

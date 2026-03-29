@@ -2,7 +2,7 @@
 /*
 Plugin Name: ATS Moknah
 Description: Convert WordPress articles to speech using Moknah TTS API.
-Version: 1.0
+Version: 1.1
 Requires PHP: 7.4
 Requires at least: 5.8
 Author: Moknah.io
@@ -12,6 +12,8 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: ats-moknah
 Plugin URI: https://github.com/Moknahio/Moknah-ATS
 */
+
+if (!defined('ABSPATH')) exit;
 
 if (version_compare(PHP_VERSION, '7.4', '<')) {
     add_action('admin_notices', function () {
@@ -41,7 +43,6 @@ add_action('plugins_loaded', function () {
 
 
 
-if (!defined('ABSPATH')) exit;
 
 $ats_moknah_autoload = plugin_dir_path(__FILE__) . 'vendor/autoload.php';
 if (file_exists($ats_moknah_autoload)) {
@@ -53,7 +54,7 @@ require_once plugin_dir_path(__FILE__) . 'includes/class-ats-moknah-admin.php';
 require_once plugin_dir_path(__FILE__) . 'includes/class-ats-moknah-callback.php';
 
 require_once plugin_dir_path(__FILE__) . 'includes/class-ats-moknah-frontend.php';
-\ATS_Moknah\Frontend::init();
+\Frontend::init();
 
 // Register admin page
 \ATS_Moknah\Admin::register();
@@ -62,7 +63,4 @@ require_once plugin_dir_path(__FILE__) . 'includes/class-ats-moknah-frontend.php
 add_action('plugins_loaded', function () {
     \ATS_Moknah\Callback::register();
 });
-require_once __DIR__ . '/includes/class-ats-moknah-analytics.php';
-\ATS_Moknah\Analytics::register();
-
-register_activation_hook(__FILE__, ['\\ATS_Moknah\\Analytics', 'activate']);
+require_once plugin_dir_path(__FILE__) . 'includes/analytics/class-ats-moknah-analytics.php';

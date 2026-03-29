@@ -4,7 +4,35 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="abb78b48-2399-4ae3-b154-c9288a037fdb" name="Changes" comment="Improve TTS content preprocessing and prevent frontend changes when no audio exists&#10;&#10;- Prevent all frontend modifications (CSS, JS, audio player injection)&#10;  if `_ats_moknah_audio_url` is missing or empty.&#10;- Ensure `the_content` filter always returns original content when&#10;  audio is not available (fixes hidden article body issue).&#10;- Remove fallback default audio URL to avoid unintended player rendering.&#10;- Refactor TTS content preprocessing pipeline:&#10;  - Strip shortcodes before processing&#10;  - Remove unwanted phrases before punctuation normalization&#10;  - Convert block-level HTML tags (p, h1–h6, li, div, br) to line breaks&#10;  - Strip remaining HTML safely&#10;  - Decode HTML entities once&#10;  - Normalize whitespace and collapse extra line breaks&#10;  - Add sentence-ending punctuation to lines missing it&#10;- Improve punctuation normalization to avoid over-processing short or numeric-only lines.&#10;- Remove redundant `_ats_moknah_processing` cleanup in catch block&#10;  (handled centrally in finally).&#10;- Minor code cleanup and structural improvements for better maintainability." />
+    <list default="true" id="abb78b48-2399-4ae3-b154-c9288a037fdb" name="Changes" comment="Improve TTS content preprocessing and prevent frontend changes when no audio exists&#10;&#10;- Prevent all frontend modifications (CSS, JS, audio player injection)&#10;  if `_ats_moknah_audio_url` is missing or empty.&#10;- Ensure `the_content` filter always returns original content when&#10;  audio is not available (fixes hidden article body issue).&#10;- Remove fallback default audio URL to avoid unintended player rendering.&#10;- Refactor TTS content preprocessing pipeline:&#10;  - Strip shortcodes before processing&#10;  - Remove unwanted phrases before punctuation normalization&#10;  - Convert block-level HTML tags (p, h1–h6, li, div, br) to line breaks&#10;  - Strip remaining HTML safely&#10;  - Decode HTML entities once&#10;  - Normalize whitespace and collapse extra line breaks&#10;  - Add sentence-ending punctuation to lines missing it&#10;- Improve punctuation normalization to avoid over-processing short or numeric-only lines.&#10;- Remove redundant `_ats_moknah_processing` cleanup in catch block&#10;  (handled centrally in finally).&#10;- Minor code cleanup and structural improvements for better maintainability.">
+      <change afterPath="$PROJECT_DIR$/assets/css/admin-analytics.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/js/admin-analytics.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/includes/analytics/class-ats-moknah-analytics-admin.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/includes/analytics/class-ats-moknah-analytics-db.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/includes/analytics/class-ats-moknah-analytics-frontend.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/includes/analytics/class-ats-moknah-analytics-rest.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/includes/analytics/class-ats-moknah-analytics.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/views/views-ats-moknah-admin-analytics.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/admin.css" beforeDir="false" afterPath="$PROJECT_DIR$/assets/css/admin.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/admin.js" beforeDir="false" afterPath="$PROJECT_DIR$/assets/js/admin.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/back-3.webp" beforeDir="false" afterPath="$PROJECT_DIR$/assets/images/back-3.webp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/favicon.ico" beforeDir="false" afterPath="$PROJECT_DIR$/assets/images/favicon.ico" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/mk-mp-d1.css" beforeDir="false" afterPath="$PROJECT_DIR$/assets/css/mk-mp-d1.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/mk-mp-d1.js" beforeDir="false" afterPath="$PROJECT_DIR$/assets/js/mk-mp-d1.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/moknah-highlighter.js" beforeDir="false" afterPath="$PROJECT_DIR$/assets/js/moknah-highlighter.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/player-analytics.js" beforeDir="false" afterPath="$PROJECT_DIR$/assets/js/player-analytics.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/settings.js" beforeDir="false" afterPath="$PROJECT_DIR$/assets/js/settings.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ats-moknah.php" beforeDir="false" afterPath="$PROJECT_DIR$/ats-moknah.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composer.json" beforeDir="false" afterPath="$PROJECT_DIR$/composer.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/includes/class-ats-moknah-admin.php" beforeDir="false" afterPath="$PROJECT_DIR$/includes/class-ats-moknah-admin.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/includes/class-ats-moknah-analytics.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/includes/class-ats-moknah-frontend.php" beforeDir="false" afterPath="$PROJECT_DIR$/includes/class-ats-moknah-frontend.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mk-mp-player-template.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/mk-mp-player-template.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/readme.txt" beforeDir="false" afterPath="$PROJECT_DIR$/readme.txt" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -17,8 +45,8 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="CSS File" />
         <option value="HTML File" />
+        <option value="CSS File" />
         <option value="JavaScript File" />
       </list>
     </option>
@@ -61,39 +89,52 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "DefaultHtmlFileTemplate": "HTML File",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "WebServerToolWindowFactoryState": "true",
-    "WebServerToolWindowPanel.toolwindow.highlight.mappings": "true",
-    "WebServerToolWindowPanel.toolwindow.highlight.symlinks": "true",
-    "WebServerToolWindowPanel.toolwindow.show.date": "false",
-    "WebServerToolWindowPanel.toolwindow.show.permissions": "false",
-    "WebServerToolWindowPanel.toolwindow.show.size": "false",
-    "git-widget-placeholder": "master",
-    "last_opened_file_path": "C:/wamp64/www/wordpress/wp-content/plugins/ats-moknah",
-    "list.type.of.created.stylesheet": "CSS",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "project.propVCSSupport.DirectoryMappings",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowPanel.toolwindow.highlight.mappings&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowPanel.toolwindow.highlight.symlinks&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowPanel.toolwindow.show.date&quot;: &quot;false&quot;,
+    &quot;WebServerToolWindowPanel.toolwindow.show.permissions&quot;: &quot;false&quot;,
+    &quot;WebServerToolWindowPanel.toolwindow.show.size&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/wamp64/www/wordpress/wp-content/plugins/ats-moknah&quot;,
+    &quot;list.type.of.created.stylesheet&quot;: &quot;CSS&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;project.propVCSSupport.DirectoryMappings&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\wamp64\www\wordpress\wp-content\plugins\ats-moknah" />
       <recent name="C:\wamp64\www\wordpress\wp-content\plugins\ats-moknah\assets" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
-      <recent name="C:\wamp64\www\wordpress\wp-content\plugins\ats-moknah" />
-      <recent name="C:\wamp64\www\wordpress\wp-content\plugins\ats-moknah\languages" />
-      <recent name="C:\wamp64\www\wordpress\wp-content\plugins\ats-moknah\assets\fontawesome" />
+      <recent name="C:\wamp64\www\wordpress\wp-content\plugins\ats-moknah\assets\images" />
+      <recent name="C:\wamp64\www\wordpress\wp-content\plugins\ats-moknah\assets\js" />
+      <recent name="C:\wamp64\www\wordpress\wp-content\plugins\ats-moknah\assets\css" />
+      <recent name="C:\wamp64\www\wordpress\wp-content\plugins\ats-moknah\includes" />
+      <recent name="C:\wamp64\www\wordpress\wp-content\plugins\ats-moknah\includes\analytics" />
     </key>
+  </component>
+  <component name="RunManager">
+    <configuration name="test.php" type="PhpLocalRunConfigurationType" factoryName="PHP Console" temporary="true" path="$PROJECT_DIR$/test.php">
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="PHP Script.test.php" />
+        <item itemvalue="PHP Script.test.php" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="SvnConfiguration">
@@ -148,7 +189,13 @@
       <workItem from="1773638400429" duration="6000" />
       <workItem from="1773834314168" duration="378000" />
       <workItem from="1774270485305" duration="2826000" />
-      <workItem from="1774353165240" duration="6459000" />
+      <workItem from="1774353165240" duration="8902000" />
+      <workItem from="1774632437074" duration="15000" />
+      <workItem from="1774634984035" duration="1679000" />
+      <workItem from="1774640933617" duration="690000" />
+      <workItem from="1774709454246" duration="908000" />
+      <workItem from="1774790180805" duration="10424000" />
+      <workItem from="1774801318125" duration="87000" />
     </task>
     <task id="LOCAL-00001" summary="First Polished Version">
       <option name="closed" value="true" />
@@ -236,6 +283,7 @@
     <MESSAGE value="Added Arabic Translation" />
     <MESSAGE value="Improve TTS content preprocessing and prevent frontend changes when no audio exists&#10;&#10;- Prevent all frontend modifications (CSS, JS, audio player injection)&#10;  if `_ats_moknah_audio_url` is missing or empty.&#10;- Ensure `the_content` filter always returns original content when&#10;  audio is not available (fixes hidden article body issue).&#10;- Remove fallback default audio URL to avoid unintended player rendering.&#10;- Refactor TTS content preprocessing pipeline:&#10;  - Strip shortcodes before processing&#10;  - Remove unwanted phrases before punctuation normalization&#10;  - Convert block-level HTML tags (p, h1–h6, li, div, br) to line breaks&#10;  - Strip remaining HTML safely&#10;  - Decode HTML entities once&#10;  - Normalize whitespace and collapse extra line breaks&#10;  - Add sentence-ending punctuation to lines missing it&#10;- Improve punctuation normalization to avoid over-processing short or numeric-only lines.&#10;- Remove redundant `_ats_moknah_processing` cleanup in catch block&#10;  (handled centrally in finally).&#10;- Minor code cleanup and structural improvements for better maintainability." />
     <option name="LAST_COMMIT_MESSAGE" value="Improve TTS content preprocessing and prevent frontend changes when no audio exists&#10;&#10;- Prevent all frontend modifications (CSS, JS, audio player injection)&#10;  if `_ats_moknah_audio_url` is missing or empty.&#10;- Ensure `the_content` filter always returns original content when&#10;  audio is not available (fixes hidden article body issue).&#10;- Remove fallback default audio URL to avoid unintended player rendering.&#10;- Refactor TTS content preprocessing pipeline:&#10;  - Strip shortcodes before processing&#10;  - Remove unwanted phrases before punctuation normalization&#10;  - Convert block-level HTML tags (p, h1–h6, li, div, br) to line breaks&#10;  - Strip remaining HTML safely&#10;  - Decode HTML entities once&#10;  - Normalize whitespace and collapse extra line breaks&#10;  - Add sentence-ending punctuation to lines missing it&#10;- Improve punctuation normalization to avoid over-processing short or numeric-only lines.&#10;- Remove redundant `_ats_moknah_processing` cleanup in catch block&#10;  (handled centrally in finally).&#10;- Minor code cleanup and structural improvements for better maintainability." />
+    <option name="GROUP_MULTIFILE_MERGE_BY_DIRECTORY" value="true" />
   </component>
   <component name="WordPressConfiguration" enabled="true">
     <wordpressPath>C:\wamp64\www\wordpress</wordpressPath>
