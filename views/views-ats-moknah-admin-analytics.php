@@ -165,11 +165,12 @@ $ats_range_is_custom = ($range === 'custom');
             ?>
             <div class="ats-pagination tablenav" style="justify-self: left"  dir="ltr">
                 <div class="tablenav-pages">
+                    <span class="displaying-num">
                     <?php
                     /* translators: %s: number of items */
                     printf(esc_html__('%s items', 'ats-moknah'), esc_html(number_format_i18n($total_rows)));
                     ?>
-                    <span class="displaying-num"></span>
+                    </span>
                     <span class="pagination-links">
                         <a class="first-page button <?php echo $ats_current === 1 ? 'disabled' : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>" href="<?php echo esc_url(add_query_arg('paged', 1, $ats_base)); ?>">&laquo;</a>
                         <a class="prev-page button <?php echo $ats_current === 1 ? 'disabled' : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>" href="<?php echo esc_url(add_query_arg('paged', $ats_prev, $ats_base)); ?>">&lsaquo;</a>
