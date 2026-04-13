@@ -19,8 +19,8 @@ class Analytics_Admin
     {
         add_submenu_page(
             'ats-moknah',
-            __('Analytics', 'ats-moknah-article-to-speech'),
-            __('Analytics', 'ats-moknah-article-to-speech'),
+            __('Analytics', 'ats-moknah'),
+            __('Analytics', 'ats-moknah'),
             'manage_options',
             'ats-moknah-analytics',
             [self::class, 'render_page']
@@ -45,13 +45,16 @@ class Analytics_Admin
         $totals_table = Analytics_DB::qt($wpdb, Analytics_DB::TABLE_TOTALS);
         $daily_table  = Analytics_DB::qt($wpdb, Analytics_DB::TABLE_DAILY);
 
+        // phpcs:disable WordPress.Security.NonceVerification.Recommended -- read-only display filters, no data mutation.
         $search = sanitize_text_field(wp_unslash($_GET['s'] ?? ''));
         $range  = sanitize_key($_GET['range'] ?? 'all');
         $from   = sanitize_text_field(wp_unslash($_GET['from'] ?? ''));
         $to     = sanitize_text_field(wp_unslash($_GET['to'] ?? ''));
+        $paged  = max(1, (int) wp_unslash($_GET['paged'] ?? 1));
+        // phpcs:enable WordPress.Security.NonceVerification.Recommended
+
         [$date_start, $date_end] = Analytics_DB::date_range_bounds($range, $from, $to);
 
-        $paged  = max(1, (int) ($_GET['paged'] ?? 1));
         $per    = Analytics_DB::REPORT_LIMIT;
         $offset = ($paged - 1) * $per;
 
@@ -66,73 +69,97 @@ class Analytics_Admin
             if ($search !== '') { $where .= " AND p.post_title LIKE %s"; $params[] = '%' . $wpdb->esc_like($search) . '%'; }
             if ($date_start && $date_end) { $where .= " AND d.day BETWEEN %s AND %s"; $params[] = $date_start; $params[] = $date_end; }
 
-            $sql_count = "SELECT COUNT(*) FROM (
-                SELECT d.post_id FROM {$daily_table} d
-                JOIN {$wpdb->posts} p ON p.ID = d.post_id
-                {$where}
-                GROUP BY d.post_id
-            ) sub";
-            $total_rows  = (int) $wpdb->get_var($wpdb->prepare($sql_count, $params));
+            // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            $total_rows = (int) $wpdb->get_var(
+                $wpdb->prepare(
+                    "SELECT COUNT(*) FROM (
+                        SELECT d.post_id FROM {$daily_table} d
+                        JOIN {$wpdb->posts} p ON p.ID = d.post_id
+                        {$where}
+                        GROUP BY d.post_id
+                    ) sub",
+                    $params
+                )
+            );
             $total_pages = max(1, (int) ceil($total_rows / $per));
 
             if ($total_rows > 0) {
-                $sql_data = "
-                  SELECT d.post_id,
-                         SUM(d.impressions) impressions,
-                         SUM(d.plays) plays,
-                         SUM(d.completions) completions,
-                         SUM(d.listen_seconds) listen_seconds,
-                         MAX(d.updated_at) updated_at,
-                         (CASE WHEN SUM(d.impressions) > 0 THEN ROUND(SUM(d.plays)*100/SUM(d.impressions),2) ELSE 0 END) AS play_rate,
-                         (CASE WHEN SUM(d.plays) > 0 THEN ROUND(SUM(d.completions)*100/SUM(d.plays),2) ELSE 0 END) AS completion_rate
-                  FROM {$daily_table} d
-                  JOIN {$wpdb->posts} p ON p.ID = d.post_id
-                  {$where}
-                  GROUP BY d.post_id
-                  ORDER BY updated_at DESC
-                  LIMIT %d OFFSET %d";
-                $rows = $wpdb->get_results($wpdb->prepare($sql_data, array_merge($params, [$per, $offset])));
+                $rows = $wpdb->get_results(
+                    $wpdb->prepare(
+                        "SELECT d.post_id,
+                               SUM(d.impressions) impressions,
+                               SUM(d.plays) plays,
+                               SUM(d.completions) completions,
+                               SUM(d.listen_seconds) listen_seconds,
+                               MAX(d.updated_at) updated_at,
+                               (CASE WHEN SUM(d.impressions) > 0 THEN ROUND(SUM(d.plays)*100/SUM(d.impressions),2) ELSE 0 END) AS play_rate,
+                               (CASE WHEN SUM(d.plays) > 0 THEN ROUND(SUM(d.completions)*100/SUM(d.plays),2) ELSE 0 END) AS completion_rate
+                         FROM {$daily_table} d
+                         JOIN {$wpdb->posts} p ON p.ID = d.post_id
+                         {$where}
+                         GROUP BY d.post_id
+                         ORDER BY updated_at DESC
+                         LIMIT %d OFFSET %d",
+                        array_merge($params, [$per, $offset])
+                    )
+                );
 
-                $sql_totals = "
-                  SELECT SUM(d.impressions) AS impressions,
-                         SUM(d.plays) AS plays,
-                         SUM(d.completions) AS completions,
-                         SUM(d.listen_seconds) AS listen_seconds
-                  FROM {$daily_table} d
-                  JOIN {$wpdb->posts} p ON p.ID = d.post_id
-                  {$where}";
-                $totals = $wpdb->get_row($wpdb->prepare($sql_totals, $params));
+                $totals = $wpdb->get_row(
+                    $wpdb->prepare(
+                        "SELECT SUM(d.impressions) AS impressions,
+                               SUM(d.plays) AS plays,
+                               SUM(d.completions) AS completions,
+                               SUM(d.listen_seconds) AS listen_seconds
+                         FROM {$daily_table} d
+                         JOIN {$wpdb->posts} p ON p.ID = d.post_id
+                         {$where}",
+                        $params
+                    )
+                );
             }
+            // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         } else {
             $where  = "WHERE p.post_type = %s AND p.post_status <> %s";
             $params = ['post', 'trash'];
             if ($search !== '') { $where .= " AND p.post_title LIKE %s"; $params[] = '%' . $wpdb->esc_like($search) . '%'; }
 
-            $sql_count = "SELECT COUNT(*) FROM {$totals_table} t
-                JOIN {$wpdb->posts} p ON p.ID = t.post_id {$where}";
-            $total_rows  = (int) $wpdb->get_var($wpdb->prepare($sql_count, $params));
+            // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            $total_rows = (int) $wpdb->get_var(
+                $wpdb->prepare(
+                    "SELECT COUNT(*) FROM {$totals_table} t
+                     JOIN {$wpdb->posts} p ON p.ID = t.post_id {$where}",
+                    $params
+                )
+            );
             $total_pages = max(1, (int) ceil($total_rows / $per));
 
-            $sql_data = "
-              SELECT t.post_id, t.impressions, t.plays, t.completions, t.listen_seconds, t.updated_at,
-                     (CASE WHEN t.impressions > 0 THEN ROUND(t.plays * 100 / t.impressions, 2) ELSE 0 END) AS play_rate,
-                     (CASE WHEN t.plays > 0 THEN ROUND(t.completions * 100 / t.plays, 2) ELSE 0 END) AS completion_rate
-              FROM {$totals_table} t
-              JOIN {$wpdb->posts} p ON p.ID = t.post_id
-              {$where}
-              ORDER BY t.updated_at DESC
-              LIMIT %d OFFSET %d";
-            $rows = $wpdb->get_results($wpdb->prepare($sql_data, array_merge($params, [$per, $offset])));
+            $rows = $wpdb->get_results(
+                $wpdb->prepare(
+                    "SELECT t.post_id, t.impressions, t.plays, t.completions, t.listen_seconds, t.updated_at,
+                           (CASE WHEN t.impressions > 0 THEN ROUND(t.plays * 100 / t.impressions, 2) ELSE 0 END) AS play_rate,
+                           (CASE WHEN t.plays > 0 THEN ROUND(t.completions * 100 / t.plays, 2) ELSE 0 END) AS completion_rate
+                     FROM {$totals_table} t
+                     JOIN {$wpdb->posts} p ON p.ID = t.post_id
+                     {$where}
+                     ORDER BY t.updated_at DESC
+                     LIMIT %d OFFSET %d",
+                    array_merge($params, [$per, $offset])
+                )
+            );
 
-            $sql_totals = "
-              SELECT SUM(t.impressions) AS impressions,
-                     SUM(t.plays) AS plays,
-                     SUM(t.completions) AS completions,
-                     SUM(t.listen_seconds) AS listen_seconds
-              FROM {$totals_table} t
-              JOIN {$wpdb->posts} p ON p.ID = t.post_id
-              {$where}";
-            $totals = $wpdb->get_row($wpdb->prepare($sql_totals, $params));
+            $totals = $wpdb->get_row(
+                $wpdb->prepare(
+                    "SELECT SUM(t.impressions) AS impressions,
+                           SUM(t.plays) AS plays,
+                           SUM(t.completions) AS completions,
+                           SUM(t.listen_seconds) AS listen_seconds
+                     FROM {$totals_table} t
+                     JOIN {$wpdb->posts} p ON p.ID = t.post_id
+                     {$where}",
+                    $params
+                )
+            );
+            // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         }
 
         $tot_play_rate       = ($totals->impressions > 0) ? round($totals->plays * 100 / $totals->impressions, 2) : 0;
@@ -145,7 +172,7 @@ class Analytics_Admin
     public static function export_csv(): void
     {
         if (!current_user_can('manage_options')) {
-            wp_die(__('You do not have permission.', 'ats-moknah-article-to-speech'), 403);
+            wp_die(esc_html__('You do not have permission.', 'ats-moknah'), 403);
         }
         check_admin_referer('ats_moknah_export');
 
@@ -155,8 +182,8 @@ class Analytics_Admin
         $totals_table = Analytics_DB::qt($wpdb, Analytics_DB::TABLE_TOTALS);
         $daily_table  = Analytics_DB::qt($wpdb, Analytics_DB::TABLE_DAILY);
 
-        $paged  = max(1, (int) ($_POST['paged'] ?? 1));
-        $scope  = ($_POST['export_scope'] ?? 'page') === 'all' ? 'all' : 'page';
+        $paged  = max(1, (int) wp_unslash($_POST['paged'] ?? 1));
+        $scope  = (sanitize_key(wp_unslash($_POST['export_scope'] ?? 'page')) === 'all') ? 'all' : 'page';
         $per    = ($scope === 'all') ? Analytics_DB::EXPORT_MAX : Analytics_DB::REPORT_LIMIT;
         $offset = ($scope === 'all') ? 0 : (($paged - 1) * Analytics_DB::REPORT_LIMIT);
 
@@ -169,6 +196,7 @@ class Analytics_Admin
         $rows = [];
         $totals = null;
 
+        // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         if ($range !== 'all') {
             $where = "WHERE p.post_type = %s AND p.post_status <> %s";
             $params = ['post', 'trash'];
@@ -239,6 +267,7 @@ class Analytics_Admin
                 $params
             ));
         }
+        // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
         // KPI Calculations
         $tot_play_rate       = ($totals && $totals->impressions > 0) ? round($totals->plays * 100 / $totals->impressions, 2) : 0;
@@ -255,6 +284,7 @@ class Analytics_Admin
         header('Pragma: no-cache');
         header('Expires: 0');
 
+        // phpcs:disable WordPress.WP.AlternativeFunctions.file_system_operations_fopen, WordPress.WP.AlternativeFunctions.file_system_operations_fwrite, WordPress.WP.AlternativeFunctions.file_system_operations_fclose
         $out = fopen('php://output', 'w');
 
         // UTF-8 BOM for full Excel compatibility
@@ -320,6 +350,7 @@ class Analytics_Admin
         }
 
         fclose($out);
+        // phpcs:enable WordPress.WP.AlternativeFunctions.file_system_operations_fopen, WordPress.WP.AlternativeFunctions.file_system_operations_fwrite, WordPress.WP.AlternativeFunctions.file_system_operations_fclose
         exit;
     }
 }

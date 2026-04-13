@@ -9,7 +9,7 @@ Author: Moknah.io
 Author URI: https://moknah.io/
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
-Text Domain: ats-moknah-article-to-speech
+Text Domain: ats-moknah
 Plugin URI: https://github.com/Moknahio/Moknah-ATS
 */
 
@@ -31,14 +31,6 @@ add_filter('plugin_action_links_' . plugin_basename(__FILE__), function ($links)
     array_unshift($links, $settings_link);
 
     return $links;
-});
-
-add_action('plugins_loaded', function () {
-    load_plugin_textdomain(
-        'ats-moknah-article-to-speech',
-        false,
-        dirname(plugin_basename(__FILE__)) . '/languages'
-    );
 });
 
 
