@@ -174,6 +174,7 @@ class Callback {
         update_post_meta($postId, '_ats_moknah_completed_at', current_time('mysql'));
         if (function_exists('do_action')) {
             if (defined('LSCWP_V')) {
+                // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- third-party LiteSpeed Cache hook.
                 do_action('litespeed_purge_post', $postId);
             }
         }

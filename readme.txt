@@ -1,8 +1,8 @@
 === ATS Moknah ===
 Contributors: moknah
-Tags: text-to-speech, tts, accessibility, audio, ai-voice, analytics
+Tags: text-to-speech, tts, accessibility, audio, ai-voice
 Requires at least: 5.8
-Tested up to: 6.9.4
+Tested up to: 6.9
 Requires PHP: 7.4
 Stable tag: 1.1
 License: GPLv2 or later
