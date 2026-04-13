@@ -18,9 +18,9 @@ class Analytics_Admin
     public static function menu(): void
     {
         add_submenu_page(
-            'ats-moknah',
-            __('Analytics', 'ats-moknah'),
-            __('Analytics', 'ats-moknah'),
+            'Moknah-ATS-master',
+            __('Analytics', 'Moknah-ATS-master'),
+            __('Analytics', 'Moknah-ATS-master'),
             'manage_options',
             'ats-moknah-analytics',
             [self::class, 'render_page']
@@ -172,7 +172,7 @@ class Analytics_Admin
     public static function export_csv(): void
     {
         if (!current_user_can('manage_options')) {
-            wp_die(esc_html__('You do not have permission.', 'ats-moknah'), 403);
+            wp_die(esc_html__('You do not have permission.', 'Moknah-ATS-master'), 403);
         }
         check_admin_referer('ats_moknah_export');
 
