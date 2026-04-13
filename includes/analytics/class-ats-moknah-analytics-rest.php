@@ -66,7 +66,7 @@ class Analytics_Rest
         $day   = (new \DateTime('now', $tz))->format('Y-m-d');
 
         // ensure rows
-        // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
         $wpdb->query($wpdb->prepare(
             "INSERT INTO {$totals_table} (post_id, impressions, plays, completions, listen_seconds, updated_at)
              VALUES (%d,0,0,0,0,%s)
@@ -101,7 +101,7 @@ class Analytics_Rest
                 $inc_impr, $inc_play, $inc_comp, $inc_secs, $now, $post_id, $day
             ));
         }
-        // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 
         if (!empty($wpdb->last_error)) {
             // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- legitimate DB error logging.

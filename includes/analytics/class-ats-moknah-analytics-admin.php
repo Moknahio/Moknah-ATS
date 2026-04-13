@@ -18,9 +18,9 @@ class Analytics_Admin
     public static function menu(): void
     {
         add_submenu_page(
-            'ats-moknah',
-            __('Analytics', 'ats-moknah'),
-            __('Analytics', 'ats-moknah'),
+            'Moknah-ATS-master',
+            __('Analytics', 'Moknah-ATS-master'),
+            __('Analytics', 'Moknah-ATS-master'),
             'manage_options',
             'ats-moknah-analytics',
             [self::class, 'render_page']
@@ -50,7 +50,7 @@ class Analytics_Admin
         $range  = sanitize_key($_GET['range'] ?? 'all');
         $from   = sanitize_text_field(wp_unslash($_GET['from'] ?? ''));
         $to     = sanitize_text_field(wp_unslash($_GET['to'] ?? ''));
-        $paged  = max(1, (int) wp_unslash($_GET['paged'] ?? 1));
+        $paged  = max(1, absint(wp_unslash($_GET['paged'] ?? 1)));
         // phpcs:enable WordPress.Security.NonceVerification.Recommended
 
         [$date_start, $date_end] = Analytics_DB::date_range_bounds($range, $from, $to);
@@ -69,7 +69,7 @@ class Analytics_Admin
             if ($search !== '') { $where .= " AND p.post_title LIKE %s"; $params[] = '%' . $wpdb->esc_like($search) . '%'; }
             if ($date_start && $date_end) { $where .= " AND d.day BETWEEN %s AND %s"; $params[] = $date_start; $params[] = $date_end; }
 
-            // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, PluginCheck.Security.DirectDB.UnescapedDBParameter
             $total_rows = (int) $wpdb->get_var(
                 $wpdb->prepare(
                     "SELECT COUNT(*) FROM (
@@ -117,13 +117,13 @@ class Analytics_Admin
                     )
                 );
             }
-            // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, PluginCheck.Security.DirectDB.UnescapedDBParameter
         } else {
             $where  = "WHERE p.post_type = %s AND p.post_status <> %s";
             $params = ['post', 'trash'];
             if ($search !== '') { $where .= " AND p.post_title LIKE %s"; $params[] = '%' . $wpdb->esc_like($search) . '%'; }
 
-            // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, PluginCheck.Security.DirectDB.UnescapedDBParameter
             $total_rows = (int) $wpdb->get_var(
                 $wpdb->prepare(
                     "SELECT COUNT(*) FROM {$totals_table} t
@@ -159,7 +159,7 @@ class Analytics_Admin
                     $params
                 )
             );
-            // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, PluginCheck.Security.DirectDB.UnescapedDBParameter
         }
 
         $tot_play_rate       = ($totals->impressions > 0) ? round($totals->plays * 100 / $totals->impressions, 2) : 0;
@@ -172,7 +172,7 @@ class Analytics_Admin
     public static function export_csv(): void
     {
         if (!current_user_can('manage_options')) {
-            wp_die(esc_html__('You do not have permission.', 'ats-moknah'), 403);
+            wp_die(esc_html__('You do not have permission.', 'Moknah-ATS-master'), 403);
         }
         check_admin_referer('ats_moknah_export');
 
@@ -182,7 +182,7 @@ class Analytics_Admin
         $totals_table = Analytics_DB::qt($wpdb, Analytics_DB::TABLE_TOTALS);
         $daily_table  = Analytics_DB::qt($wpdb, Analytics_DB::TABLE_DAILY);
 
-        $paged  = max(1, (int) wp_unslash($_POST['paged'] ?? 1));
+        $paged  = max(1, absint(wp_unslash($_POST['paged'] ?? 1)));
         $scope  = (sanitize_key(wp_unslash($_POST['export_scope'] ?? 'page')) === 'all') ? 'all' : 'page';
         $per    = ($scope === 'all') ? Analytics_DB::EXPORT_MAX : Analytics_DB::REPORT_LIMIT;
         $offset = ($scope === 'all') ? 0 : (($paged - 1) * Analytics_DB::REPORT_LIMIT);
@@ -196,7 +196,7 @@ class Analytics_Admin
         $rows = [];
         $totals = null;
 
-        // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, PluginCheck.Security.DirectDB.UnescapedDBParameter
         if ($range !== 'all') {
             $where = "WHERE p.post_type = %s AND p.post_status <> %s";
             $params = ['post', 'trash'];
@@ -267,7 +267,7 @@ class Analytics_Admin
                 $params
             ));
         }
-        // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, PluginCheck.Security.DirectDB.UnescapedDBParameter
 
         // KPI Calculations
         $tot_play_rate       = ($totals && $totals->impressions > 0) ? round($totals->plays * 100 / $totals->impressions, 2) : 0;

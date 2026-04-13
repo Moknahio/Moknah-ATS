@@ -9,7 +9,7 @@ Author: Moknah.io
 Author URI: https://moknah.io/
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
-Text Domain: ats-moknah
+Text Domain: Moknah-ATS-master
 Plugin URI: https://github.com/Moknahio/Moknah-ATS
 */
 
