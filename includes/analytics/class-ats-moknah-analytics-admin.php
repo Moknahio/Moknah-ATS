@@ -19,8 +19,8 @@ class Analytics_Admin
     {
         add_submenu_page(
             'ats-moknah',
-            __('Analytics', 'ats-moknah'),
-            __('Analytics', 'ats-moknah'),
+            __('Analytics', 'ats-moknah-article-to-speech'),
+            __('Analytics', 'ats-moknah-article-to-speech'),
             'manage_options',
             'ats-moknah-analytics',
             [self::class, 'render_page']
@@ -145,7 +145,7 @@ class Analytics_Admin
     public static function export_csv(): void
     {
         if (!current_user_can('manage_options')) {
-            wp_die(__('You do not have permission.', 'ats-moknah'), 403);
+            wp_die(__('You do not have permission.', 'ats-moknah-article-to-speech'), 403);
         }
         check_admin_referer('ats_moknah_export');
 

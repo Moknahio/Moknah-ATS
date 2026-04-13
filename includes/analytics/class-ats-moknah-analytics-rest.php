@@ -14,7 +14,7 @@ class Analytics_Rest
     {
         register_rest_route('ats-moknah/v1', '/analytics', [
             'methods' => 'POST',
-            'permission_callback' => [self::class, 'verify_permission'],
+            'permission_callback' => '__return_true',
             'args' => [
                 'post_id' => ['type' => 'integer', 'required' => true],
                 'event' => ['type' => 'string', 'required' => true],

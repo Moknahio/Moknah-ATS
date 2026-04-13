@@ -222,7 +222,7 @@
 				url: atsMoknah.ajaxUrl,
 				type: 'POST',
 				data: {
-					action: 'ats_get_audio',
+					action: 'atsmoknah_get_audio',
 					post_id: postId,
 					nonce: atsMoknah.nonce
 				},
@@ -318,7 +318,7 @@
 							url: atsMoknah.ajaxUrl,
 							type: 'POST',
 							data: {
-								action: 'ats_moknah_generate',
+								action: 'atsmoknah_generate',
 								nonce: atsMoknah.nonce,
 								post_id: postId,
 								ats_moknah_enabled: enabled,
