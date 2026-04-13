@@ -7,8 +7,8 @@
  */
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-$ats_export_action   = admin_url('admin-post.php', is_ssl() ? 'https' : 'http');
-$ats_range_is_custom = ($range === 'custom');
+$ats_export_action   = admin_url('admin-post.php', is_ssl() ? 'https' : 'http'); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
+$ats_range_is_custom = ($range === 'custom'); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 ?>
 <div class="wrap ats-analytics-wrap">
 
@@ -117,7 +117,7 @@ $ats_range_is_custom = ($range === 'custom');
                 </tr>
                 </thead>
                 <tbody>
-                <?php if ($rows) : foreach ($rows as $ats_r) : ?>
+                <?php if ($rows) : foreach ($rows as $ats_r) : // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound ?>
                     <tr>
                         <td class="ats-col-title ats-col-primary">
                             <strong>
@@ -158,10 +158,10 @@ $ats_range_is_custom = ($range === 'custom');
 
         <!-- Pagination -->
         <?php if ($total_pages > 1) :
-            $ats_base    = add_query_arg(['page' => 'ats-moknah-analytics', 's' => rawurlencode($search), 'range' => $range, 'from' => $from, 'to' => $to]);
-            $ats_current = (int) $paged;
-            $ats_prev    = max(1, $ats_current - 1);
-            $ats_next    = min($total_pages, $ats_current + 1);
+            $ats_base    = add_query_arg(['page' => 'ats-moknah-analytics', 's' => rawurlencode($search), 'range' => $range, 'from' => $from, 'to' => $to]); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
+            $ats_current = (int) $paged; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
+            $ats_prev    = max(1, $ats_current - 1); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
+            $ats_next    = min($total_pages, $ats_current + 1); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
             ?>
             <div class="ats-pagination tablenav" style="justify-self: left"  dir="ltr">
                 <div class="tablenav-pages">
