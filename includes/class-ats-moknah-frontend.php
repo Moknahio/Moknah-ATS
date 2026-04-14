@@ -10,7 +10,7 @@ class Frontend {
         add_action('init', function () {
             if (function_exists('pll_register_string')) {
                 pll_register_string(
-                    'atsmoknah_listen_label',
+                    'ats_listen_label',
                     'Listen to the article',
                     'ATS Moknah'
                 );
@@ -80,10 +80,10 @@ class Frontend {
         } catch (\Exception $e) {
             $skippedSelectors = ['highlighter-skip'];
         }
-        $skippedSelectors = wp_json_encode($skippedSelectors);
+        $skippedSelectors = json_encode($skippedSelectors);
         $inline_js = "window.MoknahTTS.init({
             srtSrc: {$srt_js},
-            contentSelector: '" . esc_js($articleSelector) . "',
+            contentSelector: '{$articleSelector}',
             audioID: 'mk-mp-d1-audio',
             skipClasses: $skippedSelectors,
             debug: true,
@@ -137,7 +137,7 @@ class Frontend {
         $template = file_get_contents(plugin_dir_path(__FILE__) . '../templates/mk-mp-player-template.html');
         // Replace placeholder with dynamic URL
         $player_html = str_replace('{{audio_url}}', esc_url($audio_url), $template);
-        $player_html = str_replace('{{listen_to_article}}', esc_html__('Listen to the article', 'Moknah-ATS-master'), $player_html);
+        $player_html = str_replace('{{listen_to_article}}', __('Listen to the article', 'ats-moknah'), $player_html);
 
         // Insert after featured image
         if (preg_match('/(<span class="byline">.*?<\/span>)/i', $content, $matches)) {

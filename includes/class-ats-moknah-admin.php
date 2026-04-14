@@ -5,7 +5,7 @@ namespace ATS_Moknah;
 // Prevent direct file access
 if (!defined('ABSPATH')) exit;
 
-function atsmoknah_sanitize_checkbox($input)
+function ats_moknah_sanitize_checkbox($input)
 {
     return ($input === '1') ? '1' : '0';
 }
@@ -32,7 +32,7 @@ class Admin
             if (!empty($voices) && is_array($voices)) {
                 set_transient('ats_moknah_voices', $voices, 360000);
             } else {
-                self::addError(__('Failed to load voices. Please check your API key and try again.', 'Moknah-ATS-master'));
+                self::addError(__('Failed to load voices. Please check your API key and try again.', 'ats-moknah'));
             }
         }
 
@@ -43,24 +43,24 @@ class Admin
     {
         add_action('admin_menu', function () {
             add_menu_page(
-                __('ATS Moknah', 'Moknah-ATS-master'),
-                __('ATS Moknah', 'Moknah-ATS-master'),
+                __('ATS Moknah', 'ats-moknah'),
+                __('ATS Moknah', 'ats-moknah'),
                 'manage_options',
-                'Moknah-ATS-master',
+                'ats-moknah',
                 null,
                 'dashicons-format-audio',
                 100
             );
             add_submenu_page(
-                'Moknah-ATS-master',
-                __('Settings', 'Moknah-ATS-master'),
-                __('Settings', 'Moknah-ATS-master'),
+                'ats-moknah',
+                __('Settings', 'ats-moknah'),
+                __('Settings', 'ats-moknah'),
                 'manage_options',
-                'Moknah-ATS-master',
+                'ats-moknah',
                 [self::class, 'settingsPage']
             );
         });
-        add_action('wp_ajax_atsmoknah_get_audio', [Callback::class, 'ajaxGetAudioUrl']);
+        add_action('wp_ajax_ats_get_audio', [Callback::class, 'ajaxGetAudioUrl']);
 
         add_action('admin_init', function () {
 
@@ -86,7 +86,7 @@ class Admin
         add_action('add_meta_boxes', [self::class, 'registerMetaBoxes']);
         add_action('save_post', [self::class, 'savePostMeta'], 10, 2);
         add_action('admin_enqueue_scripts', [self::class, 'enqueueAdminAssets']);
-        add_action('wp_ajax_atsmoknah_generate', [self::class, 'ajaxGenerate']);
+        add_action('wp_ajax_ats_moknah_generate', [self::class, 'ajaxGenerate']);
         add_action('admin_notices', [self::class, 'displayAdminNotices']);
         add_action('update_option', [self::class, 'maybeResetVoicesCache'], 10, 3);
     }
@@ -99,7 +99,6 @@ class Admin
             return;
         }
 
-        // phpcs:disable WordPress.Security.NonceVerification.Missing -- called from update_option hook; WordPress already verified the nonce upstream.
         if (
             isset($_POST['option_page']) &&
             $_POST['option_page'] === 'ats_moknah_settings'
@@ -107,17 +106,16 @@ class Admin
             delete_transient('ats_moknah_voices');
             $done = true;
         }
-        // phpcs:enable WordPress.Security.NonceVerification.Missing
     }
 
     public static function displayAdminNotices()
     {
         foreach (self::$errors as $error) {
-            echo '<div class="notice notice-error is-dismissible"><p><strong>' . esc_html__('ATS Moknah:', 'Moknah-ATS-master') . '</strong> ' . esc_html($error) . '</p></div>';
+            echo '<div class="notice notice-error is-dismissible"><p><strong>' . esc_html__('ATS Moknah:', 'ats-moknah') . '</strong> ' . esc_html($error) . '</p></div>';
         }
 
         foreach (self::$notices as $notice) {
-            echo '<div class="notice notice-success is-dismissible"><p><strong>' . esc_html__('ATS Moknah:', 'Moknah-ATS-master') . '</strong> ' . esc_html($notice) . '</p></div>';
+            echo '<div class="notice notice-success is-dismissible"><p><strong>' . esc_html__('ATS Moknah:', 'ats-moknah') . '</strong> ' . esc_html($notice) . '</p></div>';
         }
     }
 
@@ -135,21 +133,21 @@ class Admin
     {
         try {
             if (!current_user_can('edit_posts')) {
-                throw new \Exception(__('You do not have permission to generate audio for posts.', 'Moknah-ATS-master'));
+                throw new \Exception(__('You do not have permission to generate audio for posts.', 'ats-moknah'));
             }
 
             if (!check_ajax_referer('ats_moknah_ajax', 'nonce', false)) {
-                throw new \Exception(__('Security verification failed. Please refresh the page and try again.', 'Moknah-ATS-master'));
+                throw new \Exception(__('Security verification failed. Please refresh the page and try again.', 'ats-moknah'));
             }
 
             $post_id = intval($_POST['post_id'] ?? 0);
             if (!$post_id) {
-                throw new \Exception(__('Invalid post ID provided.', 'Moknah-ATS-master'));
+                throw new \Exception(__('Invalid post ID provided.', 'ats-moknah'));
             }
 
             $post = get_post($post_id);
             if (!$post) {
-                throw new \Exception(__('Post not found. It may have been deleted.', 'Moknah-ATS-master'));
+                throw new \Exception(__('Post not found. It may have been deleted.', 'ats-moknah'));
             }
 
             // --- NEW: Backend Check to prevent generation if already queued/processing ---
@@ -162,7 +160,7 @@ class Admin
                 $started_at &&
                 (time() - (int)$started_at) < $timeout
             ) {
-                throw new \Exception(__('Audio generation is currently in progress or queued. Please wait.', 'Moknah-ATS-master'));
+                throw new \Exception(__('Audio generation is currently in progress or queued. Please wait.', 'ats-moknah'));
             }
 
 // If timeout passed → auto reset status
@@ -186,38 +184,38 @@ class Admin
             if ($voice) {
                 $voices = self::getVoices();
                 if (empty($voices)) {
-                    throw new \Exception(__('Unable to load available voices. Please check your API key in settings.', 'Moknah-ATS-master'));
+                    throw new \Exception(__('Unable to load available voices. Please check your API key in settings.', 'ats-moknah'));
                 }
 
                 if (!array_key_exists($voice, $voices)) {
-                    throw new \Exception(__('Selected voice is not available. Please choose a different voice.', 'Moknah-ATS-master'));
+                    throw new \Exception(__('Selected voice is not available. Please choose a different voice.', 'ats-moknah'));
                 }
 
                 update_post_meta($post_id, '_ats_moknah_voice_id', $voice);
             }
 
             if ($enabled !== '1') {
-                throw new \Exception(__('Please enable Text-to-Speech before generating audio.', 'Moknah-ATS-master'));
+                throw new \Exception(__('Please enable Text-to-Speech before generating audio.', 'ats-moknah'));
             }
 
             $api_key = get_option('ats_moknah_api_key');
             if (empty($api_key)) {
-                throw new \Exception(__('API key not configured. Please add your Moknah API key in settings.', 'Moknah-ATS-master'));
+                throw new \Exception(__('API key not configured. Please add your Moknah API key in settings.', 'ats-moknah'));
             }
 
             $content = trim(wp_strip_all_tags(strip_shortcodes($post->post_content)));
             if (empty($content)) {
-                throw new \Exception(__('Post content is empty. Please add content before generating audio.', 'Moknah-ATS-master'));
+                throw new \Exception(__('Post content is empty. Please add content before generating audio.', 'ats-moknah'));
             }
 
             if (strlen($content) < 50) {
-                throw new \Exception(__('Post content is too short. Please add at least 50 characters of content.', 'Moknah-ATS-master'));
+                throw new \Exception(__('Post content is too short. Please add at least 50 characters of content.', 'ats-moknah'));
             }
             update_post_meta($post_id, '_ats_moknah_started_at', time());
             self::generateTTS($post_id);
-            self::addNotice(__('Audio generation started. Notifications to post author are disabled.', 'Moknah-ATS-master'));
+            self::addNotice(__('Audio generation started. Notifications to post author are disabled.', 'ats-moknah'));
             wp_send_json_success([
-                'message' => __('Audio generation started successfully. Notifications to post author are disabled.', 'Moknah-ATS-master'),
+                'message' => __('Audio generation started successfully. Notifications to post author are disabled.', 'ats-moknah'),
                 'status' => 'processing'
             ]);
 
@@ -258,9 +256,10 @@ class Admin
             );
             wp_set_script_translations(
                 'ats-moknah-admin',
-                'Moknah-ATS-master',
+                'ats-moknah',
                 plugin_dir_path(__FILE__) . '../languages'
             );
+            error_log(plugin_dir_path(__FILE__) . '../languages');
             wp_localize_script('ats-moknah-admin', 'atsMoknah', [
                 'ajaxUrl' => esc_url(admin_url('admin-ajax.php')),
                 'nonce' => wp_create_nonce('ats_moknah_ajax'),
@@ -274,7 +273,7 @@ class Admin
     {
         add_meta_box(
             'ats-moknah-controls',
-            __('ATS Options', 'Moknah-ATS-master'),
+            __('ATS Options', 'ats-moknah'),
             [self::class, 'renderControlsBox'],
             'post',
             'side',
@@ -298,11 +297,11 @@ class Admin
         // --- NEW: Check if generation is currently locked ---
         $is_locked = in_array($status, ['preprocessing', 'processing', 'queued'], true);
 
-        $buttonLabel = $audioUrl ? __('Regenerate Audio', 'Moknah-ATS-master') : __('Generate Audio', 'Moknah-ATS-master');
+        $buttonLabel = $audioUrl ? __('Regenerate Audio', 'ats-moknah') : __('Generate Audio', 'ats-moknah');
 
         // Change label if locked
         if ($is_locked) {
-            $buttonLabel = __('Processing...', 'Moknah-ATS-master');
+            $buttonLabel = __('Processing...', 'ats-moknah');
         }
 
         $voices = self::getVoices();
@@ -320,12 +319,12 @@ class Admin
             <?php if (!$hasApiKey) : ?>
                 <div class="notice notice-error inline" style="margin: 0 0 15px 0; padding: 10px;">
                     <p style="margin: 0;">
-                        <strong><?php esc_html_e('API Key Required:', 'Moknah-ATS-master'); ?></strong>
+                        <strong><?php esc_html_e('API Key Required:', 'ats-moknah'); ?></strong>
                         <?php
                         printf(
                         /* translators: %s: link to the settings page */
-                            esc_html__('Please configure your Moknah API key in %s first.', 'Moknah-ATS-master'),
-                            '<a href="' . esc_url(admin_url('admin.php?page=ats-moknah')) . '">' . esc_html__('settings', 'Moknah-ATS-master') . '</a>'
+                            esc_html__('Please configure your Moknah API key in %s first.', 'ats-moknah'),
+                            '<a href="' . esc_url(admin_url('admin.php?page=ats-moknah')) . '">' . esc_html__('settings', 'ats-moknah') . '</a>'
                         );
                         ?>
                     </p>
@@ -333,12 +332,12 @@ class Admin
             <?php elseif (!$hasVoices) : ?>
                 <div class="notice notice-warning inline" style="margin: 0 0 15px 0; padding: 10px;">
                     <p style="margin: 0;">
-                        <strong><?php esc_html_e('No Voices Available:', 'Moknah-ATS-master'); ?></strong>
+                        <strong><?php esc_html_e('No Voices Available:', 'ats-moknah'); ?></strong>
                         <?php
                         printf(
                         /* translators: %s: link to the settings page */
-                            esc_html__('Unable to load voices. Please check your API key in %s.', 'Moknah-ATS-master'),
-                            '<a href="' . esc_url(admin_url('admin.php?page=ats-moknah')) . '">' . esc_html__('settings', 'Moknah-ATS-master') . '</a>'
+                            esc_html__('Unable to load voices. Please check your API key in %s.', 'ats-moknah'),
+                            '<a href="' . esc_url(admin_url('admin.php?page=ats-moknah')) . '">' . esc_html__('settings', 'ats-moknah') . '</a>'
                         );
                         ?>
                     </p>
@@ -349,7 +348,7 @@ class Admin
             <?php if ($status === 'failed' && $status_details): ?>
                 <div class="notice notice-error inline" style="margin: 0 0 15px 0; padding: 10px;">
                     <p style="margin: 0;">
-                        <strong><?php esc_html_e('Generation Failed:', 'Moknah-ATS-master'); ?></strong>
+                        <strong><?php esc_html_e('Generation Failed:', 'ats-moknah'); ?></strong>
                         <?php echo esc_html($status_details); ?>
                     </p>
                 </div>
@@ -360,25 +359,25 @@ class Admin
                     <input type="checkbox" name="ats_moknah_enabled"
                            value="1" <?php checked($enabled); ?> <?php disabled(!$hasApiKey || !$hasVoices || $is_locked); ?>>
                     <span class="ats-toggle-slider"></span>
-                    <span class="ats-toggle-label"><?php esc_html_e('Enable Text-to-Speech', 'Moknah-ATS-master'); ?></span>
+                    <span class="ats-toggle-label"><?php esc_html_e('Enable Text-to-Speech', 'ats-moknah'); ?></span>
                 </label>
                 <br>
                 <label class="ats-toggle">
                     <input type="checkbox" name="ats_moknah_preprocessing"
                            value="1" <?php checked($preprocessing); ?> <?php disabled(!$hasApiKey || !$hasVoices || $is_locked); ?>>
                     <span class="ats-toggle-slider"></span>
-                    <span class="ats-toggle-label"><?php esc_html_e('Enable AI Preprocessing', 'Moknah-ATS-master'); ?></span>
+                    <span class="ats-toggle-label"><?php esc_html_e('Enable AI Preprocessing', 'ats-moknah'); ?></span>
                 </label>
             </div>
 
             <div class="ats-meta-row">
                 <label class="ats-label">
-                    <span class="ats-label-text"><?php esc_html_e('Voice', 'Moknah-ATS-master'); ?></span>
+                    <span class="ats-label-text"><?php esc_html_e('Voice', 'ats-moknah'); ?></span>
                     <select name="ats_moknah_voice_id" id="ats-voice-select"
                             class="ats-select" <?php disabled(!$hasVoices || $is_locked); ?>>
                         <?php if ($hasVoices): ?>
                             <option value="" disabled selected>
-                                <?php esc_html_e('Select a voice', 'Moknah-ATS-master'); ?>
+                                <?php esc_html_e('Select a voice', 'ats-moknah'); ?>
                             </option>
                             <?php foreach ($voices as $id => $info): ?>
                                 <option value="<?php echo esc_attr($id); ?>"
@@ -388,7 +387,7 @@ class Admin
                                 </option>
                             <?php endforeach; ?>
                         <?php else: ?>
-                            <option value=""><?php esc_html_e('No voices available', 'Moknah-ATS-master'); ?></option>
+                            <option value=""><?php esc_html_e('No voices available', 'ats-moknah'); ?></option>
                         <?php endif; ?>
                     </select>
                 </label>
@@ -397,7 +396,7 @@ class Admin
             <?php if ($hasVoices && isset($voices[$current])): ?>
                 <div class="ats-meta-row" id="ats-voice-sample">
                     <label class="ats-label">
-                        <span class="ats-label-text"><?php esc_html_e('Voice Sample', 'Moknah-ATS-master'); ?></span>
+                        <span class="ats-label-text"><?php esc_html_e('Voice Sample', 'ats-moknah'); ?></span>
                         <div class="ats-audio-wrapper">
                             <audio id="ats-sample-audio" controls
                                    src="<?php echo esc_url($voices[$current]['sample'] ?? ''); ?>"></audio>
@@ -409,7 +408,7 @@ class Admin
             <?php if ($audioUrl): ?>
                 <div class="ats-meta-row">
                     <label class="ats-label">
-                        <span class="ats-label-text"><?php esc_html_e('Generated Audio', 'Moknah-ATS-master'); ?></span>
+                        <span class="ats-label-text"><?php esc_html_e('Generated Audio', 'ats-moknah'); ?></span>
                         <div class="ats-audio-wrapper">
                             <audio controls src="<?php echo esc_url($audioUrl); ?>"></audio>
                         </div>
@@ -419,7 +418,7 @@ class Admin
                 $type = get_post_meta($post->ID, '_moknah_preprocess_type', true);
                 ?>
                 <div class="ats-meta-row">
-                    <span class="ats-label-text"><?php esc_html_e('AI Preprocessing', 'Moknah-ATS-master'); ?></span>
+                    <span class="ats-label-text"><?php esc_html_e('AI Preprocessing', 'ats-moknah'); ?></span>
                     <span class="ats-label-text ats-status-badge <?php echo esc_html($type == '2' ? 'ats-status-completed' : 'ats-status-processing'); ?>">
                         <span class="dashicons dashicons-<?php
                         echo $type === '2' ? 'yes-alt' : 'warning';
@@ -431,7 +430,7 @@ class Admin
 
             <?php if ($status): ?>
                 <div class="ats-meta-row">
-                    <span class="ats-label-text"><?php esc_html_e('Status', 'Moknah-ATS-master'); ?></span>
+                    <span class="ats-label-text"><?php esc_html_e('Status', 'ats-moknah'); ?></span>
                     <div class="ats-status-badge ats-status-<?php echo esc_attr(strtolower(str_replace(' ', '-', $status))); ?>">
                         <span class="dashicons dashicons-<?php
                         echo $status === 'failed' ? 'warning' : ($audioUrl ? 'yes-alt' : 'clock');
@@ -490,7 +489,7 @@ class Admin
             'true' === sanitize_text_field(wp_unslash($_GET['settings-updated']))
         ) {
             echo '<div class="notice notice-success is-dismissible"><p>' .
-                esc_html__('Settings saved successfully.', 'Moknah-ATS-master') .
+                esc_html__('Settings saved successfully.', 'ats-moknah') .
                 '</p></div>';
         }
 
@@ -500,17 +499,17 @@ class Admin
             <div class="ats-settings-header">
                 <h1>
                     <img src="<?php echo esc_url(plugin_dir_url(__FILE__) . '../assets/images/favicon.ico'); ?>"
-                         alt="<?php esc_attr_e('Moknah Logo', 'Moknah-ATS-master'); ?>" class="ats-settings-logo">
-                    <?php esc_html_e('ATS Moknah Settings', 'Moknah-ATS-master'); ?>
+                         alt="<?php esc_attr_e('Moknah Logo', 'ats-moknah'); ?>" class="ats-settings-logo">
+                    <?php esc_html_e('ATS Moknah Settings', 'ats-moknah'); ?>
                 </h1>
-                <p class="description"><?php esc_html_e('Configure your Article to Speech settings and default preferences.', 'Moknah-ATS-master'); ?></p>
+                <p class="description"><?php esc_html_e('Configure your Article to Speech settings and default preferences.', 'ats-moknah'); ?></p>
             </div>
 
             <?php if (!$hasVoices && get_option('ats_moknah_api_key')): ?>
                 <div class="notice notice-warning">
                     <p>
-                        <strong><?php esc_html_e('Warning:', 'Moknah-ATS-master'); ?></strong>
-                        <?php esc_html_e('Unable to load voices from Moknah API. Please verify your API key is correct and has the necessary permissions.', 'Moknah-ATS-master'); ?>
+                        <strong><?php esc_html_e('Warning:', 'ats-moknah'); ?></strong>
+                        <?php esc_html_e('Unable to load voices from Moknah API. Please verify your API key is correct and has the necessary permissions.', 'ats-moknah'); ?>
                     </p>
                 </div>
             <?php endif; ?>
@@ -523,26 +522,26 @@ class Admin
                     <div class="ats-settings-card">
                         <h2 class="ats-card-title">
                             <span class="dashicons dashicons-admin-network"></span>
-                            <?php esc_html_e('API Configuration', 'Moknah-ATS-master'); ?>
+                            <?php esc_html_e('API Configuration', 'ats-moknah'); ?>
                         </h2>
 
                         <div class="ats-settings-row">
                             <label class="ats-settings-label">
-                                <span class="ats-settings-label-text"><?php esc_html_e('Moknah API Key', 'Moknah-ATS-master'); ?></span>
-                                <span class="ats-settings-label-desc"><?php esc_html_e('Enter your Moknah API key to enable text-to-speech conversion.', 'Moknah-ATS-master'); ?></span>
+                                <span class="ats-settings-label-text"><?php esc_html_e('Moknah API Key', 'ats-moknah'); ?></span>
+                                <span class="ats-settings-label-desc"><?php esc_html_e('Enter your Moknah API key to enable text-to-speech conversion.', 'ats-moknah'); ?></span>
                             </label>
                             <div class="ats-settings-field">
                                 <input type="password"
                                        name="ats_moknah_api_key"
                                        value="<?php echo esc_attr(get_option('ats_moknah_api_key')); ?>"
                                        class="ats-input ats-input-large"
-                                       placeholder="<?php esc_attr_e('Enter your API key', 'Moknah-ATS-master'); ?>" required>
+                                       placeholder="<?php esc_attr_e('Enter your API key', 'ats-moknah'); ?>" required>
                             </div>
                         </div>
                         <div class="ats-settings-row">
                             <label class="ats-settings-label">
-                                <span class="ats-settings-label-text"><?php esc_html_e('Article Selector', 'Moknah-ATS-master'); ?></span>
-                                <span class="ats-settings-label-desc"><?php esc_html_e('Enter the innermost CSS selector that directly contains the post title and body.', 'Moknah-ATS-master'); ?></span>
+                                <span class="ats-settings-label-text"><?php esc_html_e('Article Selector', 'ats-moknah'); ?></span>
+                                <span class="ats-settings-label-desc"><?php esc_html_e('Enter the innermost CSS selector that directly contains the post title and body.', 'ats-moknah'); ?></span>
                             </label>
                             <div class="ats-settings-field">
                                 <input type="text"
@@ -554,9 +553,9 @@ class Admin
                         </div>
                         <div class="ats-settings-row">
                             <label class="ats-settings-label">
-                                <span class="ats-settings-label-text"><?php esc_html_e('Skipped Selectors', 'Moknah-ATS-master'); ?></span>
-                                <span class="ats-settings-label-desc"><?php esc_html_e('A list of CSS selectors inside "Article Selector" which you plan to ignore them from being highlighted', 'Moknah-ATS-master'); ?></span>
-                                <span class="ats-settings-label-note"><?php esc_html_e('\'.highlighter-skip\' Selector is included by default', 'Moknah-ATS-master'); ?></span>
+                                <span class="ats-settings-label-text"><?php esc_html_e('Skipped Selectors', 'ats-moknah'); ?></span>
+                                <span class="ats-settings-label-desc"><?php esc_html_e('A list of CSS selectors inside "Article Selector" which you plan to ignore them from being highlighted', 'ats-moknah'); ?></span>
+                                <span class="ats-settings-label-note"><?php esc_html_e('\'.highlighter-skip\' Selector is included by default', 'ats-moknah'); ?></span>
                             </label>
                             <div class="ats-settings-field">
                                 <input type="text"
@@ -568,9 +567,9 @@ class Admin
                         </div>
                         <div class="ats-settings-row">
                             <label class="ats-settings-label">
-                                <span class="ats-settings-label-text"><?php esc_html_e('Callback url', 'Moknah-ATS-master'); ?> <span
-                                            class="ats-settings-label-tag"><?php esc_html_e('( optional )', 'Moknah-ATS-master'); ?></span></span>
-                                <span class="ats-settings-label-desc"><?php esc_html_e('Enter the callback URL to receive audio file notifications.', 'Moknah-ATS-master'); ?></span>
+                                <span class="ats-settings-label-text"><?php esc_html_e('Callback url', 'ats-moknah'); ?> <span
+                                            class="ats-settings-label-tag"><?php esc_html_e('( optional )', 'ats-moknah'); ?></span></span>
+                                <span class="ats-settings-label-desc"><?php esc_html_e('Enter the callback URL to receive audio file notifications.', 'ats-moknah'); ?></span>
                             </label>
                             <div class="ats-settings-field">
                                 <input type="url"
@@ -583,7 +582,7 @@ class Admin
                                         esc_attr(
                                             sprintf(
                                             /* translators: %s: Default callback URL */
-                                                __('Default: %s', 'Moknah-ATS-master'),
+                                                __('Default: %s', 'ats-moknah'),
                                                 rest_url('ats-moknah/v1/callback')
                                             )
                                         )
@@ -597,20 +596,20 @@ class Admin
                     <div class="ats-settings-card">
                         <h2 class="ats-card-title">
                             <span class="dashicons dashicons-microphone"></span>
-                            <?php esc_html_e('Voice Settings', 'Moknah-ATS-master'); ?>
+                            <?php esc_html_e('Voice Settings', 'ats-moknah'); ?>
                         </h2>
 
                         <div class="ats-settings-row">
                             <label class="ats-settings-label">
-                                <span class="ats-settings-label-text"><?php esc_html_e('Default Voice', 'Moknah-ATS-master'); ?></span>
-                                <span class="ats-settings-label-desc"><?php esc_html_e('Select the default voice for new articles.', 'Moknah-ATS-master'); ?></span>
+                                <span class="ats-settings-label-text"><?php esc_html_e('Default Voice', 'ats-moknah'); ?></span>
+                                <span class="ats-settings-label-desc"><?php esc_html_e('Select the default voice for new articles.', 'ats-moknah'); ?></span>
                             </label>
                             <div class="ats-settings-field">
                                 <?php if ($hasVoices): ?>
                                     <select name="ats_moknah_voice_id" id="ats-settings-voice-select"
                                             class="ats-select">
                                         <option value="" disabled selected>
-                                            <?php esc_html_e('Select a voice', 'Moknah-ATS-master'); ?>
+                                            <?php esc_html_e('Select a voice', 'ats-moknah'); ?>
                                         </option>
                                         <?php
                                         $defaultVoice = get_option('ats_moknah_voice_id');
@@ -632,7 +631,7 @@ class Admin
                                     <?php endif; ?>
                                 <?php else: ?>
                                     <p class="description" style="color: #d63638;">
-                                        <?php esc_html_e('Please save your API key first to load available voices.', 'Moknah-ATS-master'); ?>
+                                        <?php esc_html_e('Please save your API key first to load available voices.', 'ats-moknah'); ?>
                                     </p>
                                 <?php endif; ?>
                             </div>
@@ -642,31 +641,32 @@ class Admin
                 </div>
 
                 <div class="ats-settings-footer">
-                    <?php submit_button(__('Save Settings', 'Moknah-ATS-master'), 'primary', 'submit', false); ?>
+                    <?php submit_button(__('Save Settings', 'ats-moknah'), 'primary', 'submit', false); ?>
                 </div>
             </form>
         </div>
 
         <?php if ($hasVoices): ?>
-        <?php
-        wp_add_inline_script('ats-moknah-settings', "jQuery(document).ready(function($){
-            $('#ats-settings-voice-select').on('change', function(){
-                var sample = $(this).find(':selected').data('sample');
-                var audioEl = $('#ats-settings-sample-audio');
-                if (sample) {
-                    if (audioEl.length) {
-                        audioEl.attr('src', sample);
-                    } else {
-                        $(this).parent().append(
-                            '<div class=\"ats-audio-wrapper\" style=\"margin-top:12px;\">' +
-                            '<audio id=\"ats-settings-sample-audio\" controls src=\"' + sample + '\"></audio>' +
-                            '</div>'
-                        );
-                    }
-                }
-            });
-        });");
-        ?>
+        <script>
+			jQuery(document).ready(function ($) {
+				$('#ats-settings-voice-select').on('change', function () {
+					const sample = $(this).find(':selected').data('sample');
+					const audioEl = $('#ats-settings-sample-audio');
+
+					if (sample) {
+						if (audioEl.length) {
+							audioEl.attr('src', sample);
+						} else {
+							$(this).parent().append(
+								'<div class="ats-audio-wrapper" style="margin-top: 12px;">' +
+								'<audio id="ats-settings-sample-audio" controls src="' + sample + '"></audio>' +
+								'</div>'
+							);
+						}
+					}
+				});
+			});
+        </script>
     <?php endif; ?>
         <?php
     }
@@ -807,16 +807,15 @@ class Admin
             $raw_message = $e->getMessage();
 
             if (strpos($raw_message, 'API key') !== false || strpos($raw_message, 'Unauthorized') !== false) {
-                $error_message = __('API authentication failed. Please check your API key in settings.', 'Moknah-ATS-master');
+                $error_message = __('API authentication failed. Please check your API key in settings.', 'ats-moknah');
             } elseif (strpos($raw_message, 'cURL') !== false || strpos($raw_message, 'Connection') !== false) {
-                $error_message = __('Unable to connect to Moknah API. Please check your internet connection and try again.', 'Moknah-ATS-master');
+                $error_message = __('Unable to connect to Moknah API. Please check your internet connection and try again.', 'ats-moknah');
             } elseif (strpos($raw_message, 'timeout') !== false) {
-                $error_message = __('Request timed out. The Moknah API may be experiencing issues. Please try again later.', 'Moknah-ATS-master');
+                $error_message = __('Request timed out. The Moknah API may be experiencing issues. Please try again later.', 'ats-moknah');
             } else {
                 // Fallback – generic safe message
-                // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- legitimate error logging for unexpected exceptions.
                 error_log('Unexpected error during TTS generation for post ID ' . $post_id . ': ' . $raw_message);
-                $error_message = __('An unexpected error occurred while processing the request.', 'Moknah-ATS-master');
+                $error_message = __('An unexpected error occurred while processing the request.', 'ats-moknah');
             }
 
             update_post_meta($post_id, '_ats_moknah_status', 'failed');

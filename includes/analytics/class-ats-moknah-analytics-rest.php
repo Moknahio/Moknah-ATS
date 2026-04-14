@@ -14,7 +14,7 @@ class Analytics_Rest
     {
         register_rest_route('ats-moknah/v1', '/analytics', [
             'methods' => 'POST',
-            'permission_callback' => '__return_true',
+            'permission_callback' => [self::class, 'verify_permission'],
             'args' => [
                 'post_id' => ['type' => 'integer', 'required' => true],
                 'event' => ['type' => 'string', 'required' => true],
@@ -34,7 +34,7 @@ class Analytics_Rest
 
     private static function check_rate_limit(): bool
     {
-        $ip  = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : 'unknown';
+        $ip  = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
         $key = 'ats_moknah_rl_' . md5($ip);
         $count = (int) wp_cache_get($key, 'ats_moknah');
         $count += 1;
@@ -66,7 +66,6 @@ class Analytics_Rest
         $day   = (new \DateTime('now', $tz))->format('Y-m-d');
 
         // ensure rows
-        // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
         $wpdb->query($wpdb->prepare(
             "INSERT INTO {$totals_table} (post_id, impressions, plays, completions, listen_seconds, updated_at)
              VALUES (%d,0,0,0,0,%s)
@@ -101,10 +100,8 @@ class Analytics_Rest
                 $inc_impr, $inc_play, $inc_comp, $inc_secs, $now, $post_id, $day
             ));
         }
-        // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 
         if (!empty($wpdb->last_error)) {
-            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- legitimate DB error logging.
             error_log('ATS Moknah analytics write error: ' . $wpdb->last_error);
         }
 

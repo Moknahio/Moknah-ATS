@@ -1,7 +1,7 @@
 {
     "require": {
-        "symfony/dom-crawler": "^7.4.8",
-        "symfony/css-selector": "^7.4.8",
+        "symfony/dom-crawler": "^7.4",
+        "symfony/css-selector": "^7.4",
         "guzzlehttp/guzzle": "^7.10"
     },
     "autoload": {
