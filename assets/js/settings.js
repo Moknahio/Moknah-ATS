@@ -14,11 +14,11 @@ jQuery(document).ready(function($) {
 		$result.removeClass('success error').hide();
 
 		$.ajax({
-			url: atsMoknahSettings.ajaxUrl,
+			url: atsmoknahSettings.ajaxUrl,
 			type: 'POST',
 			data: {
 				action: 'ats_moknah_test_email',
-				nonce: atsMoknahSettings.nonce
+				nonce: atsmoknahSettings.nonce
 			},
 			success: function(response) {
 				if (response.success) {

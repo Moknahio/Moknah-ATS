@@ -4,7 +4,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-class Analytics_Admin
+class AtsMoknahAnalyticsAdmin
 {
     public static function register(): void
     {
@@ -12,15 +12,15 @@ class Analytics_Admin
         add_action('admin_enqueue_scripts', [self::class, 'enqueue_admin_assets']);
 
         // This is the missing hook that makes the Export button work!
-        add_action('admin_post_ats_moknah_export_csv', [self::class, 'export_csv']);
+        add_action('admin_post_atsmoknah_export_csv', [self::class, 'export_csv']);
     }
 
     public static function menu(): void
     {
         add_submenu_page(
-            'ats-moknah',
-            __('Analytics', 'ats-moknah'),
-            __('Analytics', 'ats-moknah'),
+            'ats-moknah-article-to-speech',
+            __('Analytics', 'ats-moknah-article-to-speech'),
+            __('Analytics', 'ats-moknah-article-to-speech'),
             'manage_options',
             'ats-moknah-analytics',
             [self::class, 'render_page']
@@ -40,10 +40,10 @@ class Analytics_Admin
     public static function render_page(): void
     {
         global $wpdb;
-        Analytics_DB::maybe_create_tables();
+        AtsMoknahAnalyticsDb::maybe_create_tables();
 
-        $totals_table = Analytics_DB::qt($wpdb, Analytics_DB::TABLE_TOTALS);
-        $daily_table  = Analytics_DB::qt($wpdb, Analytics_DB::TABLE_DAILY);
+        $totals_table = AtsMoknahAnalyticsDb::qt($wpdb, AtsMoknahAnalyticsDb::TABLE_TOTALS);
+        $daily_table  = AtsMoknahAnalyticsDb::qt($wpdb, AtsMoknahAnalyticsDb::TABLE_DAILY);
 
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended
         $search = sanitize_text_field(wp_unslash($_GET['s'] ?? ''));
@@ -53,11 +53,11 @@ class Analytics_Admin
         $from   = sanitize_text_field(wp_unslash($_GET['from'] ?? ''));
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended
         $to     = sanitize_text_field(wp_unslash($_GET['to'] ?? ''));
-        [$date_start, $date_end] = Analytics_DB::date_range_bounds($range, $from, $to);
+        [$date_start, $date_end] = AtsMoknahAnalyticsDb::date_range_bounds($range, $from, $to);
 
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended
         $paged = isset($_GET['paged']) ? absint(wp_unslash($_GET['paged'])) : 1;
-        $per    = Analytics_DB::REPORT_LIMIT;
+        $per    = AtsMoknahAnalyticsDb::REPORT_LIMIT;
         $offset = ($paged - 1) * $per;
 
         $rows = [];
@@ -156,15 +156,15 @@ class Analytics_Admin
     public static function export_csv(): void
     {
         if (!current_user_can('manage_options')) {
-            wp_die(esc_html__('You do not have permission.', 'ats-moknah'), 403);
+            wp_die(esc_html__('You do not have permission.', 'ats-moknah-article-to-speech'), 403);
         }
-        check_admin_referer('ats_moknah_export');
+        check_admin_referer('atsmoknah_export');
 
         global $wpdb;
-        Analytics_DB::maybe_create_tables();
+        AtsMoknahAnalyticsDb::maybe_create_tables();
 
-        $totals_table = Analytics_DB::qt($wpdb, Analytics_DB::TABLE_TOTALS);
-        $daily_table  = Analytics_DB::qt($wpdb, Analytics_DB::TABLE_DAILY);
+        $totals_table = AtsMoknahAnalyticsDb::qt($wpdb, AtsMoknahAnalyticsDb::TABLE_TOTALS);
+        $daily_table  = AtsMoknahAnalyticsDb::qt($wpdb, AtsMoknahAnalyticsDb::TABLE_DAILY);
 
         $paged = isset($_POST['paged']) ? absint(wp_unslash($_POST['paged'])) : 1;
         $scope = sanitize_text_field(wp_unslash($_POST['export_scope'] ?? 'page'));
@@ -172,14 +172,14 @@ class Analytics_Admin
         if (!in_array($scope, ['all', 'page'], true)) {
             $scope = 'page';
         }
-        $per    = ($scope === 'all') ? Analytics_DB::EXPORT_MAX : Analytics_DB::REPORT_LIMIT;
-        $offset = ($scope === 'all') ? 0 : (($paged - 1) * Analytics_DB::REPORT_LIMIT);
+        $per    = ($scope === 'all') ? AtsMoknahAnalyticsDb::EXPORT_MAX : AtsMoknahAnalyticsDb::REPORT_LIMIT;
+        $offset = ($scope === 'all') ? 0 : (($paged - 1) * AtsMoknahAnalyticsDb::REPORT_LIMIT);
 
         $search = sanitize_text_field(wp_unslash($_POST['s'] ?? ''));
         $range  = sanitize_key($_POST['range'] ?? 'all');
         $from   = sanitize_text_field(wp_unslash($_POST['from'] ?? ''));
         $to     = sanitize_text_field(wp_unslash($_POST['to'] ?? ''));
-        [$date_start, $date_end] = Analytics_DB::date_range_bounds($range, $from, $to);
+        [$date_start, $date_end] = AtsMoknahAnalyticsDb::date_range_bounds($range, $from, $to);
 
         $rows = [];
         $totals = null;

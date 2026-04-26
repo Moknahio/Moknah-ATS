@@ -3,7 +3,7 @@
 
 if (!defined('ABSPATH')) exit;
 
-class Analytics_DB
+class AtsMoknahAnalyticsDb
 {
     const TABLE_TOTALS = 'ats_moknah_stats';
     const TABLE_DAILY  = 'ats_moknah_stats_daily';
@@ -60,7 +60,7 @@ class Analytics_DB
     {
         $name = $wpdb->prefix . $suffix;
         if (!preg_match('/^[A-Za-z0-9_]+$/', $name)) {
-            wp_die(esc_html__('Invalid table name.', 'ats-moknah'), 500);
+            wp_die(esc_html__('Invalid table name.', 'ats-moknah-article-to-speech'), 500);
         }
         return '`' . esc_sql($name) . '`';
     }

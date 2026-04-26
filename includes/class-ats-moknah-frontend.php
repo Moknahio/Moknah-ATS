@@ -2,7 +2,7 @@
 
 if (!defined('ABSPATH')) exit;
 
-class Frontend {
+class AtsMoknahFrontend {
 
     public static function init() {
         add_action('wp_enqueue_scripts', [__CLASS__, 'enqueue_assets']);
@@ -19,7 +19,7 @@ class Frontend {
     }
 
     public static function enqueue_assets() {
-        if (!is_single()) return;
+        if (!is_singular('post')) return;
 
         global $post;
         if (!$post) return;
@@ -62,40 +62,37 @@ class Frontend {
             true
         );
         $srt_url = get_post_meta($post->ID, '_ats_moknah_srt_url', true);
-        $srt_js = $srt_url ? "'" . esc_js($srt_url) . "'" : 'null';
-        $articleSelector = get_option('ats_moknah_article_selector');
-        $skippedSelectors = get_option('ats_moknah_skipped_selectors', []);
+        $article_selector = (string) get_option('ats_moknah_article_selector', 'article');
+        $skipped_selectors = get_option('ats_moknah_skipped_selectors', []);
         try {
-            // Remove leading dot from each selector
-            if (!is_array($skippedSelectors)) {
-                $skippedSelectors = explode(',', $skippedSelectors);
+            if (!is_array($skipped_selectors)) {
+                $skipped_selectors = explode(',', (string) $skipped_selectors);
             }
-            $skippedSelectors = array_map(function ($selector) {
-                return ltrim($selector, '.');
-            }, $skippedSelectors);
-
-            // Append 'highlighter-skip'
-
-            $skippedSelectors[] = 'highlighter-skip';
+            $skipped_selectors = array_map(function ($selector) {
+                return sanitize_html_class(ltrim(trim((string) $selector), '.'));
+            }, $skipped_selectors);
+            $skipped_selectors = array_values(array_filter($skipped_selectors));
+            $skipped_selectors[] = 'highlighter-skip';
+            $skipped_selectors = array_values(array_unique($skipped_selectors));
         } catch (\Exception $e) {
-            $skippedSelectors = ['highlighter-skip'];
+            $skipped_selectors = ['highlighter-skip'];
         }
-        $skippedSelectors = json_encode($skippedSelectors);
-        $inline_js = "window.MoknahTTS.init({
-            srtSrc: {$srt_js},
-            contentSelector: '{$articleSelector}',
-            audioID: 'mk-mp-d1-audio',
-            skipClasses: $skippedSelectors,
-            debug: true,
-            styles: {
-                baseColor: '#333',
-                highlightColor: '#f6a21f',
-                highlightTextColor: '#000',
-                underlineHeight: '3px',
-                underlineOffset: '-2px',
-                animationDuration: '0.3s'
-            }
-        });";
+        $inline_config = [
+            'srtSrc' => !empty($srt_url) ? esc_url_raw($srt_url) : null,
+            'contentSelector' => sanitize_text_field($article_selector),
+            'audioID' => 'mk-mp-d1-audio',
+            'skipClasses' => $skipped_selectors,
+            'debug' => true,
+            'styles' => [
+                'baseColor' => '#333',
+                'highlightColor' => '#f6a21f',
+                'highlightTextColor' => '#000',
+                'underlineHeight' => '3px',
+                'underlineOffset' => '-2px',
+                'animationDuration' => '0.3s',
+            ],
+        ];
+        $inline_js = 'window.MoknahTTS.init(' . wp_json_encode($inline_config, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) . ');';
 
         wp_add_inline_script('mk-mp-d1', $inline_js);
         // Analytics tracker
@@ -107,7 +104,7 @@ class Frontend {
             true
         );
 
-        wp_localize_script('ats-moknah-player-analytics', 'atsMoknahAnalytics', [
+        wp_localize_script('ats-moknah-player-analytics', 'atsmoknahAnalytics', [
             'restUrl' => esc_url_raw(rest_url('ats-moknah/v1/analytics')),
             'nonce' => wp_create_nonce('wp_rest'),
             'postId' => (int)$post->ID,
@@ -118,7 +115,7 @@ class Frontend {
     }
 
     public static function add_audio_player($content) {
-        if (!is_single()) return $content;
+        if (is_admin() || !is_singular('post') || !is_main_query()) return $content;
         global $post;
         if (!$post) return $content;
 
@@ -133,20 +130,33 @@ class Frontend {
         // Get dynamic audio URL from post meta (or generate from post ID)
         $audio_url = get_post_meta($post_id, '_ats_moknah_audio_url', true);
 
-        // Load template HTML
-        $template = file_get_contents(plugin_dir_path(__FILE__) . '../templates/mk-mp-player-template.html');
-        // Replace placeholder with dynamic URL
+        $template_path = plugin_dir_path(__FILE__) . '../templates/mk-mp-player-template.html';
+        $template = file_exists($template_path) ? (string) file_get_contents($template_path) : '';
+        if ($template === '') return $content;
+
         $player_html = str_replace('{{audio_url}}', esc_url($audio_url), $template);
-        $player_html = str_replace('{{listen_to_article}}', __('Listen to the article', 'ats-moknah'), $player_html);
+        $player_html = str_replace('{{listen_to_article}}', esc_html__('Listen to the article', 'ats-moknah-article-to-speech'), $player_html);
+        $player_html = wp_kses($player_html, self::allowed_player_html());
 
         // Insert after featured image
         if (preg_match('/(<span class="byline">.*?<\/span>)/i', $content, $matches)) {
             $content = str_replace($matches[1], $matches[1] . "\n<div class='mk-mp-player-wrapper'>\n{$player_html}\n</div>\n", $content);
         } else {
-            // fallback: prepend at top
             $content = "<div class='mk-mp-player-wrapper'>\n{$player_html}\n</div>\n" . $content;
         }
         return $content;
 
+    }
+
+    private static function allowed_player_html(): array {
+        return [
+            'div' => ['class' => true, 'id' => true, 'style' => true],
+            'button' => ['class' => true, 'id' => true, 'type' => true],
+            'i' => ['class' => true],
+            'input' => ['type' => true, 'class' => true, 'id' => true, 'value' => true, 'step' => true, 'min' => true, 'max' => true],
+            'span' => ['id' => true, 'class' => true],
+            'audio' => ['id' => true, 'src' => true, 'controls' => true],
+            'a' => ['href' => true, 'target' => true, 'rel' => true],
+        ];
     }
 }

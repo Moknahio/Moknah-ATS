@@ -1,34 +1,71 @@
 (function () {
-	const cfg = window.atsMoknahAnalytics;
+	const cfg = window.atsmoknahAnalytics;
 	if (!cfg || !cfg.postId || !cfg.restUrl) return;
 
-	const HEARTBEAT_SECONDS = 10;
-	const bound = new WeakSet();
-	let impressionSent = false;
+	// GLOBAL LOCK: Prevents the script from running twice
+	if (window['ats_tracking_init_' + cfg.postId]) return;
+	window['ats_tracking_init_' + cfg.postId] = true;
 
-	const send = (event, listenSeconds = 0) => {
+	// --- 1. NETWORK SENDER ---
+	const postJSON = (body, useBeacon = false) => {
+		if (useBeacon && navigator.sendBeacon) {
+			try {
+				const blob = new Blob([JSON.stringify(body)], { type: 'application/json' });
+				if (navigator.sendBeacon(cfg.restUrl, blob)) return;
+			} catch (_) {}
+		}
+
 		fetch(cfg.restUrl, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
 				'X-WP-Nonce': cfg.nonce
 			},
-			body: JSON.stringify({
-				post_id: cfg.postId,
-				event,
-				listen_seconds: Math.max(0, Math.round(listenSeconds))
-			})
+			body: JSON.stringify(body),
+			keepalive: useBeacon
 		}).catch(() => {});
 	};
+
+	const send = (event, listenSeconds = 0, useBeacon = false) => {
+		postJSON({
+			post_id: cfg.postId,
+			event,
+			listen_seconds: Math.max(0, Math.round(listenSeconds))
+		}, useBeacon);
+	};
+
+
+	// --- 2. INSTANT PAGE LOAD IMPRESSION ---
+	const trackImpression = () => {
+		// 1. Block bots immediately
+		if (navigator.webdriver || /bot|googlebot|crawler|spider|robot|crawling/i.test(navigator.userAgent)) {
+			return;
+		}
+
+		const impressionKey = "ats_impression_" + cfg.postId;
+		const now = Date.now();
+		const last = localStorage.getItem(impressionKey);
+		if (last && now - parseInt(last) < 10 * 60 * 1000) return;
+		if (window['ats_imp_sent_' + cfg.postId]) return;
+		window['ats_imp_sent_' + cfg.postId] = true;
+		localStorage.setItem(impressionKey, String(now));
+		send("impression");
+	};
+
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', trackImpression);
+	} else {
+		setTimeout(trackImpression, 0);
+	}
+
+
+	// --- 3. AUDIO PLAYER TRACKING (ONLY tracks 'play', 'listen', 'complete') ---
+	const HEARTBEAT_SECONDS = 10;
+	const bound = new WeakSet();
 
 	const bindPlayer = (player) => {
 		if (!player || bound.has(player)) return;
 		bound.add(player);
-
-		if (!impressionSent) {
-			impressionSent = true;
-			send('impression');
-		}
 
 		let lastTime = player.currentTime || 0;
 		let accumulated = 0;
@@ -37,7 +74,7 @@
 
 		const flush = () => {
 			if (accumulated > 0) {
-				send('heartbeat', accumulated);
+				send('listen', accumulated, true);
 				accumulated = 0;
 			}
 		};

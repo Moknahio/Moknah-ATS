@@ -2,12 +2,12 @@
 /**
  * Plugin bootstrap for ATS Moknah Analytics.
  */
-namespace ATS_Moknah;
+namespace AtsMoknahPlugin;
 
-use Analytics_Admin;
-use Analytics_DB;
-use Analytics_Frontend;
-use Analytics_Rest;
+use AtsMoknahAnalyticsAdmin;
+use AtsMoknahAnalyticsDb;
+use AtsMoknahAnalyticsFrontend;
+use AtsMoknahAnalyticsRest;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -27,13 +27,11 @@ spl_autoload_register(function ($class) {
 });
 require_once plugin_dir_path(__FILE__) . 'class-ats-moknah-analytics-db.php';
 require_once plugin_dir_path(__FILE__) . 'class-ats-moknah-analytics-rest.php';
-require_once plugin_dir_path(__FILE__) . 'class-ats-moknah-analytics-frontend.php';
 require_once plugin_dir_path(__FILE__) . 'class-ats-moknah-analytics-admin.php';
-Analytics_DB::activate_hook();
+AtsMoknahAnalyticsDb::activate_hook();
 
 add_action('plugins_loaded', function () {
-    Analytics_DB::maybe_create_tables();
-    Analytics_Rest::register();
-    Analytics_Frontend::register();
-    Analytics_Admin::register();
+    AtsMoknahAnalyticsDb::maybe_create_tables();
+    AtsMoknahAnalyticsRest::register();
+    AtsMoknahAnalyticsAdmin::register();
 });

@@ -9,7 +9,7 @@ Author: Moknah.io
 Author URI: https://moknah.io/
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
-Text Domain: ats-moknah
+Text Domain: ats-moknah-article-to-speech
 Plugin URI: https://github.com/Moknahio/Moknah-ATS
 */
 
@@ -35,7 +35,7 @@ add_filter('plugin_action_links_' . plugin_basename(__FILE__), function ($links)
 
 add_action('plugins_loaded', function () {
     load_plugin_textdomain(
-        'ats-moknah',
+        'ats-moknah-article-to-speech',
         false,
         dirname(plugin_basename(__FILE__)) . '/languages'
     );
@@ -54,13 +54,13 @@ require_once plugin_dir_path(__FILE__) . 'includes/class-ats-moknah-admin.php';
 require_once plugin_dir_path(__FILE__) . 'includes/class-ats-moknah-callback.php';
 
 require_once plugin_dir_path(__FILE__) . 'includes/class-ats-moknah-frontend.php';
-\Frontend::init();
+\AtsMoknahFrontend::init();
 
 // Register admin page
-\ATS_Moknah\Admin::register();
+\AtsMoknahPlugin\Admin::register();
 
 // Register REST callback
 add_action('plugins_loaded', function () {
-    \ATS_Moknah\Callback::register();
+    \AtsMoknahPlugin\Callback::register();
 });
 require_once plugin_dir_path(__FILE__) . 'includes/analytics/class-ats-moknah-analytics.php';

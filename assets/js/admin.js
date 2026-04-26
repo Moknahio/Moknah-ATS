@@ -219,12 +219,12 @@
 			if (!postId) return;
 
 			$.ajax({
-				url: atsMoknah.ajaxUrl,
+				url: atsmoknahAdmin.ajaxUrl,
 				type: 'POST',
 				data: {
-					action: 'ats_get_audio',
+					action: 'atsmoknah_get_audio',
 					post_id: postId,
-					nonce: atsMoknah.nonce
+					nonce: atsmoknahAdmin.nonce
 				},
 				success: function(response) {
 					if (response.success && response.data) {
@@ -307,7 +307,7 @@
 
 			function showMainConfirmation() {
 				showConfirmModal(
-					__('Confirm Audio Generation', 'ats-moknah'),
+					__('Confirm Audio Generation', 'ats-moknah-article-to-speech'),
 					'Are you sure the generation settings are correct and you want to proceed? This will process your article and may take a few moments.',
 					'Yes, Generate Audio',
 					function() {
@@ -315,11 +315,11 @@
 						lockInterface('Starting...');
 
 						$.ajax({
-							url: atsMoknah.ajaxUrl,
+							url: atsmoknahAdmin.ajaxUrl,
 							type: 'POST',
 							data: {
-								action: 'ats_moknah_generate',
-								nonce: atsMoknah.nonce,
+								action: 'atsmoknah_generate',
+								nonce: atsmoknahAdmin.nonce,
 								post_id: postId,
 								ats_moknah_enabled: enabled,
 								ats_moknah_preprocessing: preprocess,

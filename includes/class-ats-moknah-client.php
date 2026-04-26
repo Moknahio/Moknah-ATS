@@ -1,6 +1,6 @@
 <?php
 
-namespace ATS_Moknah;
+namespace AtsMoknahPlugin;
 
 if (!defined('ABSPATH')) exit;
 use GuzzleHttp\Client;
@@ -58,7 +58,7 @@ class MoknahClient {
                 ? wp_strip_all_tags( (string) $e->getResponse()->getBody()->getContents() )
                 : $e->getMessage();
 			// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
-            throw new \Exception(sprintf('Moknah API request failed: %s', sanitize_text_field( $msg )));
+            throw new \Exception(sanitize_text_field( $msg ));
 
         }
     }

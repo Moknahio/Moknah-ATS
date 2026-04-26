@@ -1,5 +1,5 @@
 <?php
-namespace ATS_Moknah;
+namespace AtsMoknahPlugin;
 
 if (!defined('ABSPATH')) exit;
 class Callback {
@@ -22,11 +22,11 @@ class Callback {
                 wp_send_json_error(['message' => 'Unauthorized'], 403);
             }
 
-            check_ajax_referer('ats_moknah_ajax', 'nonce');
+            check_ajax_referer('atsmoknah_ajax', 'nonce');
 
             // Accept both 'post_id' and 'id' to be safe
             $postId = intval($_POST['post_id'] ?? $_POST['id'] ?? 0);
-            if (!$postId) {-
+            if (!$postId) {
                 wp_send_json_error(['message' => 'Invalid ID'], 400);
             }
 
